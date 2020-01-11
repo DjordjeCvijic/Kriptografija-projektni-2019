@@ -17,8 +17,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
+
 import javafx.stage.Stage;
 import main.Main;
 
@@ -33,7 +32,6 @@ public class LoginController {
     private Button loginBtn;
 
     public static String userName;
-    public static File inboxFile;
 
     public void initialize(URL location, ResourceBundle resources) {
 
@@ -70,9 +68,8 @@ public class LoginController {
 
     private void showHomeScreen() {
         try {
-             inboxFile=new File("src"+ File.separator+"resources"+File.separator+"inboxes"+File.separator+userName+"_inbox");
-            inboxFile.mkdir();
-            Stage stage = Main.primaryStage1;
+
+            Stage stage = (Stage) loginBtn.getScene().getWindow();
             Parent root = FXMLLoader.load(getClass().getResource("../view/homeScreen.fxml"));
             stage.setTitle("Home Screen for "+userName);
             stage.getIcons().clear();

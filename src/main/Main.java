@@ -10,16 +10,18 @@ import javafx.stage.Stage;
 import java.io.File;
 
 public class Main extends Application {
-    public static Stage primaryStage1;
+
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        primaryStage1=primaryStage;
+        //ImageWorker iw=new ImageWorker("src"+ File.separator+"resources"+File.separator+"loginIcon.jpg");
+        //iw.worker();
         Parent root = FXMLLoader.load(getClass().getResource("../view/login.fxml"));
         primaryStage.setTitle("Login");
         primaryStage.getIcons().add(new Image(getClass().getResourceAsStream(".."+ File.separator+"resources"+File.separator+"loginIcon.jpg")));
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
+
     }
 
 
