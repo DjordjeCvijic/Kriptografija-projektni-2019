@@ -1,0 +1,6 @@
+import java.security.MessageDigest;
+public byte[] getHash(String password) throws
+NoSuchAlgorithmException {
+MessageDigest digest = MessageDigest.getInstance("SHA-1");
+digest.reset();
+return digest.digest(password.getBytes("UTF-8"));
