@@ -36,35 +36,50 @@ public class HomeScreenController extends Thread implements Initializable {
 
 
     public static ArrayList<String> activeUsers = new ArrayList<>();
-    private int numOfActiveUsers=0;
+    private int numOfActiveUsers = 0;
     private User user;
-    private static Object lock=new Object();
-    public static LinkedList<User> usersInConnection=new LinkedList<>();
+    private static Object lock = new Object();
+    public static LinkedList<User> usersInConnection = new LinkedList<>();
+    private JavaInboxesListener listener = null;
 
+    private Boolean flag = true;
 
     public void initialize(URL location, ResourceBundle resources) {
 
         try {
 
+
             user = new User(LoginController.userName, new File("src" + File.separator + "resources" + File.separator + "inboxes" + File.separator + LoginController.userName + "_inbox"));
+
 
             Image image1 = new Image(new FileInputStream("src" + File.separator + "resources" + File.separator + "homeScreenIcon.png"));
             userImage.setImage(image1);
-
             usernameLabel.setText(user.getName());
+
+
+            activeUsers.clear();
+
+
             File[] tmp = new File("src" + File.separator + "resources" + File.separator + "inboxes").listFiles();
             for (int i = 0; i < tmp.length; i++) {
-                if (!tmp[i].getName().startsWith(usernameLabel.getText())) {
+                if (!tmp[i].getName().startsWith(user.getName())) {
                     int index = tmp[i].getName().indexOf('_');
                     activeUsers.add(tmp[i].getName().substring(0, index));
 
                 }
             }
+
+
+            activeUsersBox.getItems().clear();
+
+
             for (String s : activeUsers)
                 activeUsersBox.getItems().add(s);
-            numOfActiveUsers=activeUsers.size();
+            numOfActiveUsers = activeUsers.size();
             numberLabel.setText(Integer.toString(numOfActiveUsers));
-            JavaDirectoryChangeListener listener = new JavaDirectoryChangeListener(new File("src" + File.separator + "resources" + File.separator + "inboxes").toPath());
+
+
+            listener = new JavaInboxesListener(user.getName());
             listener.start();
         } catch (Exception e) {
             e.printStackTrace();
@@ -75,17 +90,21 @@ public class HomeScreenController extends Thread implements Initializable {
     }
 
     public void onClickLogoutBtn(ActionEvent actionEvent) {
+        listener.setRunning(false);
 
         try {
-           // Stage stage = Main.primaryStage1;
             Stage stage1 = (Stage) logoutBtn.getScene().getWindow();
             Parent root = FXMLLoader.load(getClass().getResource("../view/login.fxml"));
             stage1.setTitle("Login");
             stage1.getIcons().add(new Image(getClass().getResourceAsStream(".." + File.separator + "resources" + File.separator + "loginIcon.jpg")));
             stage1.setScene(new Scene(root));
 
-            user.deleteInboxFile();
+            user.deleteUserData();
 
+            flag = false;
+            synchronized (lock) {
+                lock.notify();
+            }
             stage1.show();
         } catch (Exception e) {
             e.printStackTrace();
@@ -113,7 +132,7 @@ public class HomeScreenController extends Thread implements Initializable {
 
     public void run() {
 
-        while (true) {
+        while (flag) {
             synchronized (lock) {
                 try {
 
@@ -125,14 +144,17 @@ public class HomeScreenController extends Thread implements Initializable {
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
-                        activeUsersBox.getItems().clear();
-                        for (String s : activeUsers)
+                        activeUsersBox.getItems().clear();//mozda ovo ne radi
+                        for (String s : activeUsers) {
                             activeUsersBox.getItems().add(s);
+                        }
+
                         numOfActiveUsers = activeUsers.size();
                         numberLabel.setText(Integer.toString(numOfActiveUsers));
+
+
                     }
                 });
-
 
 
             }
@@ -143,20 +165,19 @@ public class HomeScreenController extends Thread implements Initializable {
 
     public void onClickSendAMessageBtn(ActionEvent actionEvent) {
         try {
-            String chosenName=activeUsersBox.getSelectionModel().getSelectedItem().toString();
-            User tmp=new User(chosenName,new File("src" + File.separator + "resources" + File.separator + "inboxes" + File.separator + chosenName + "_inbox"));
+            String chosenName = activeUsersBox.getSelectionModel().getSelectedItem().toString();
+            User tmp = new User(chosenName, new File("src" + File.separator + "resources" + File.separator + "inboxes" + File.separator + chosenName + "_inbox"));
             usersInConnection.addFirst(tmp);
             Stage stage = new Stage();
             Parent root = FXMLLoader.load(getClass().getResource("../view/requestSending.fxml"));
-            stage.setTitle(user.getName()+" sending a chat request");
+            stage.setTitle(user.getName() + " sending a chat request");
             //stage.getIcons().clear();
             //stage.getIcons().add(new Image(getClass().getResourceAsStream(".."+ File.separator+"resources"+File.separator+"homeScreenIcon.png")));
             stage.setScene(new Scene(root));
             stage.show();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
 
 
     }

@@ -19,7 +19,9 @@ public class User {
     public void setName(String name) {
         this.name = name;
     }
-    public void deleteInboxFile(){
+    public void deleteUserData(){
         inboxFile.delete();
+        name=null;
+        inboxFile=null;
     }
 }

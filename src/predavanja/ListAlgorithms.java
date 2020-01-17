@@ -5,7 +5,7 @@ import java.security.Security;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-// import org.bouncycastle.jce.provider.BouncyCastleProvider
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 
 
@@ -25,7 +25,7 @@ public class ListAlgorithms {
     }
 
     public static void main(String[] args) {
-        //Security.addProvider(new BouncyCastleProvider());
+        Security.addProvider(new BouncyCastleProvider());
         Provider[] providers = Security.getProviders();
         Set<String> ciphers = new HashSet<String>();
         Set<String> keyAgreements = new HashSet<String>();

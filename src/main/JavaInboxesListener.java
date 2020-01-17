@@ -1,34 +1,56 @@
 package main;
 
 
-
+import java.io.File;
 import java.nio.file.*;
 import java.nio.file.WatchEvent.Kind;
 import java.util.logging.Level;
+
 import controller.HomeScreenController;
 
-public class JavaDirectoryChangeListener extends Thread {
+public class JavaInboxesListener extends Thread {
 
-    private Path directoryPath;
-    private String name;
+    private Path directoryPath = (new File("src" + File.separator + "resources" + File.separator + "inboxes")).toPath();
+    private String userName;
+    private boolean running = false;
 
-    public JavaDirectoryChangeListener(Path dir) {
-        directoryPath = dir;
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
+    }
+
+    public JavaInboxesListener(String name) {
+
+        userName = name;
     }
 
     @Override
     public void run() {
         try {
+            setRunning(true);
+
             WatchService watchService = directoryPath.getFileSystem().newWatchService();
             directoryPath.register(watchService, StandardWatchEventKinds.ENTRY_CREATE,
                     StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);
 
-            //Start infinite loop to watch changes on the directory
-            while (true) {
+
+            while (isRunning()) {
 
                 WatchKey watchKey = watchService.take();
 
-                // poll for file system events on the WatchKey
+
                 for (final WatchEvent<?> event : watchKey.pollEvents()) {
                     //Calling method
                     takeActionOnChangeEvent(event);
@@ -43,11 +65,12 @@ public class JavaDirectoryChangeListener extends Thread {
                 }
             }
 
+
         } catch (InterruptedException e) {
 
             e.printStackTrace();
         } catch (Exception e) {
-           e.printStackTrace();
+            e.printStackTrace();
         }
 
     }
@@ -59,21 +82,21 @@ public class JavaDirectoryChangeListener extends Thread {
         if (kind.equals(StandardWatchEventKinds.ENTRY_CREATE)) {
             Path entryCreated = (Path) event.context();
 
-            int index=entryCreated.toString().indexOf('_');
-            String newUser=entryCreated.toString().substring(0,index);
+            int index = entryCreated.toString().indexOf('_');
+            String newUser = entryCreated.toString().substring(0, index);
             HomeScreenController.addActiveUser(newUser);
-            System.out.println("dodat "+newUser);
 
 
         } else if (kind.equals(StandardWatchEventKinds.ENTRY_DELETE)) {
             Path entryDeleted = (Path) event.context();
-            int index=entryDeleted.toString().indexOf('_');
-            String newUser=entryDeleted.toString().substring(0,index);
-            HomeScreenController.removeActiveUser(newUser);
-            System.out.println("obrisan "+newUser);
+            int index = 0;
 
-        } else if (kind.equals(StandardWatchEventKinds.ENTRY_MODIFY)) {
-            Path entryModified = (Path) event.context();
+            if (!entryDeleted.toString().equals(userName + "_inbox")) {
+                index = entryDeleted.toString().indexOf('_');
+                String deletedUser = entryDeleted.toString().substring(0, index);
+                HomeScreenController.removeActiveUser(deletedUser);
+
+            }
 
         }
     }

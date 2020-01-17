@@ -20,6 +20,7 @@ import javafx.scene.image.Image;
 
 import javafx.stage.Stage;
 import main.Main;
+import model.GenerateAndCheckPassword;
 
 
 public class LoginController {
@@ -38,22 +39,22 @@ public class LoginController {
 
     }
 
-        public void onClick(ActionEvent actionEvent) {
+    public void onClick(ActionEvent actionEvent) {
 
 
-         userName=nameTextField.getText();
-        String password=passwordTextField.getText();
-        if(userName.equals("")) loginError();
-            else {
+        userName = nameTextField.getText();
+        String password = passwordTextField.getText();
+        if (userName.equals("")) loginError();
+        else {
             File userAccountsFile = new File("src" + File.separator + "resources" + File.separator + "user_accounts");
 
             File account = new File(userAccountsFile.getPath() + File.separator + userName);
             if (account.exists()) {
                 try {
-                    BufferedReader in = new BufferedReader(new FileReader(account));
-                    String pass = in.readLine();
-                    if (pass.equals(password)) {
+
+                    if (GenerateAndCheckPassword.checkPassword(userName, password)) {
                         showHomeScreen();
+
                     } else
                         loginError();
 
@@ -64,6 +65,7 @@ public class LoginController {
 
             } else loginError();
         }
+
     }
 
     private void showHomeScreen() {
@@ -71,18 +73,18 @@ public class LoginController {
 
             Stage stage = (Stage) loginBtn.getScene().getWindow();
             Parent root = FXMLLoader.load(getClass().getResource("../view/homeScreen.fxml"));
-            stage.setTitle("Home Screen for "+userName);
+            stage.setTitle("Home Screen for " + userName);
             stage.getIcons().clear();
-            stage.getIcons().add(new Image(getClass().getResourceAsStream(".."+ File.separator+"resources"+File.separator+"homeScreenIcon.png")));
+            stage.getIcons().add(new Image(getClass().getResourceAsStream(".." + File.separator + "resources" + File.separator + "homeScreenIcon.png")));
             stage.setScene(new Scene(root));
             stage.show();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    private void loginError(){
+    private void loginError() {
 
         Platform.runLater(new Runnable() {
             @Override
