@@ -37,10 +37,11 @@ public class HomeScreenController extends Thread implements Initializable {
 
     public static ArrayList<String> activeUsers = new ArrayList<>();
     private int numOfActiveUsers = 0;
-    private User user;
+    public static User user;
     private static Object lock = new Object();
     public static LinkedList<User> usersInConnection = new LinkedList<>();
     private JavaInboxesListener listener = null;
+    public String selectedUser=null;
 
     private Boolean flag = true;
 
@@ -100,11 +101,12 @@ public class HomeScreenController extends Thread implements Initializable {
             stage1.setScene(new Scene(root));
 
             user.deleteUserData();
-
+            usersInConnection.clear();
             flag = false;
             synchronized (lock) {
                 lock.notify();
             }
+
             stage1.show();
         } catch (Exception e) {
             e.printStackTrace();
@@ -165,6 +167,7 @@ public class HomeScreenController extends Thread implements Initializable {
 
     public void onClickSendAMessageBtn(ActionEvent actionEvent) {
         try {
+
             String chosenName = activeUsersBox.getSelectionModel().getSelectedItem().toString();
             User tmp = new User(chosenName, new File("src" + File.separator + "resources" + File.separator + "inboxes" + File.separator + chosenName + "_inbox"));
             usersInConnection.addFirst(tmp);

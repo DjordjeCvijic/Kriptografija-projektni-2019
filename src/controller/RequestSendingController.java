@@ -7,9 +7,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
+import model.User;
+import controller.LoginController;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.net.URL;
+import java.nio.Buffer;
 import java.util.ResourceBundle;
 
 public class RequestSendingController implements Initializable {
@@ -41,5 +45,18 @@ public class RequestSendingController implements Initializable {
     }
 
     public void onClickYesBtn(ActionEvent actionEvent) {
+
+
+        User user=HomeScreenController.usersInConnection.getFirst();
+        try{
+            BufferedWriter out=new BufferedWriter(new FileWriter(user.getInboxFile()+File.separator+LoginController.userName+".txt"));
+            out.write("request");
+            out.close();
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 }

@@ -12,6 +12,10 @@ public class User {
         inboxFile.mkdir();
     }
 
+    public File getInboxFile() {
+        return inboxFile;
+    }
+
     public String getName() {
         return name;
     }
@@ -24,4 +28,5 @@ public class User {
         name=null;
         inboxFile=null;
     }
+
 }
