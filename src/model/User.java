@@ -5,15 +5,15 @@ import java.io.File;
 public class User {
 
     private String name;
-    private File inboxFile;
+    private File inboxDirectory;
     public User(String n,File f){
         name=n;
-        inboxFile=f;
-        inboxFile.mkdir();
+        inboxDirectory=f;
+        inboxDirectory.mkdir();
     }
 
-    public File getInboxFile() {
-        return inboxFile;
+    public File getInboxDirectory() {
+        return inboxDirectory;
     }
 
     public String getName() {
@@ -24,9 +24,9 @@ public class User {
         this.name = name;
     }
     public void deleteUserData(){
-        inboxFile.delete();
+        inboxDirectory.delete();
         name=null;
-        inboxFile=null;
+        inboxDirectory=null;
     }
 
 }

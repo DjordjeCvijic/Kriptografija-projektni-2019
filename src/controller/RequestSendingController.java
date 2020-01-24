@@ -26,7 +26,7 @@ public class RequestSendingController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        qLabel.setText("Do you want to start a conversation with "+HomeScreenController.usersInConnection.getFirst().getName());
+        qLabel.setText("Do you want to start a conversation with "+HomeScreenController.requestToConnection.getName());
     }
 
     public void onClickImageBtn(ActionEvent actionEvent) {
@@ -34,8 +34,11 @@ public class RequestSendingController implements Initializable {
 
         FileChooser fileChooser = new FileChooser();
         File selectedFile = fileChooser.showOpenDialog(null);
-
-        System.out.println(selectedFile.toString());
+        try {
+            System.out.println(selectedFile.toString());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public void onClickNoBtn(ActionEvent actionEvent) {
@@ -47,9 +50,9 @@ public class RequestSendingController implements Initializable {
     public void onClickYesBtn(ActionEvent actionEvent) {
 
 
-        User user=HomeScreenController.usersInConnection.getFirst();
+        User user=HomeScreenController.requestToConnection;
         try{
-            BufferedWriter out=new BufferedWriter(new FileWriter(user.getInboxFile()+File.separator+LoginController.userName+".txt"));
+            BufferedWriter out=new BufferedWriter(new FileWriter(user.getInboxDirectory()+File.separator+LoginController.userName+".txt"));
             out.write("request");
             out.close();
 
@@ -57,6 +60,9 @@ public class RequestSendingController implements Initializable {
         }catch (Exception e){
             e.printStackTrace();
         }
+
+        Stage stage = (Stage) noBtn.getScene().getWindow();
+        stage.close();
 
     }
 }

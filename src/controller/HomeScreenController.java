@@ -39,9 +39,11 @@ public class HomeScreenController extends Thread implements Initializable {
     private int numOfActiveUsers = 0;
     public static User user;
     private static Object lock = new Object();
-    public static LinkedList<User> usersInConnection = new LinkedList<>();
+    // public static LinkedList<User> usersInConnection = new LinkedList<>();
+    public static User requestToConnection;
     private JavaInboxesListener listener = null;
-    public String selectedUser=null;
+    private UserInboxListener userInboxListener = null;
+    public String selectedUser = null;
 
     private Boolean flag = true;
 
@@ -82,6 +84,8 @@ public class HomeScreenController extends Thread implements Initializable {
 
             listener = new JavaInboxesListener(user.getName());
             listener.start();
+            userInboxListener = new UserInboxListener(user.getInboxDirectory());
+            userInboxListener.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -92,6 +96,7 @@ public class HomeScreenController extends Thread implements Initializable {
 
     public void onClickLogoutBtn(ActionEvent actionEvent) {
         listener.setRunning(false);
+        userInboxListener.setRunning(false);
 
         try {
             Stage stage1 = (Stage) logoutBtn.getScene().getWindow();
@@ -101,7 +106,7 @@ public class HomeScreenController extends Thread implements Initializable {
             stage1.setScene(new Scene(root));
 
             user.deleteUserData();
-            usersInConnection.clear();
+            //usersInConnection.clear();
             flag = false;
             synchronized (lock) {
                 lock.notify();
@@ -169,8 +174,9 @@ public class HomeScreenController extends Thread implements Initializable {
         try {
 
             String chosenName = activeUsersBox.getSelectionModel().getSelectedItem().toString();
-            User tmp = new User(chosenName, new File("src" + File.separator + "resources" + File.separator + "inboxes" + File.separator + chosenName + "_inbox"));
-            usersInConnection.addFirst(tmp);
+            requestToConnection = new User(chosenName, new File("src" + File.separator + "resources" + File.separator + "inboxes" + File.separator + chosenName + "_inbox"));
+            //usersInConnection.addFirst(tmp);
+           //activeUsersBox.setValue(null);
             Stage stage = new Stage();
             Parent root = FXMLLoader.load(getClass().getResource("../view/requestSending.fxml"));
             stage.setTitle(user.getName() + " sending a chat request");
@@ -181,7 +187,10 @@ public class HomeScreenController extends Thread implements Initializable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    public static void action(String message){
 
 
+        System.out.println(message);
     }
 }
