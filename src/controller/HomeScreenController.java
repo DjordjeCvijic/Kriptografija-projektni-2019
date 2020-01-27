@@ -14,8 +14,10 @@ import javafx.stage.Stage;
 import main.*;
 import model.User;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -39,7 +41,7 @@ public class HomeScreenController extends Thread implements Initializable {
     private int numOfActiveUsers = 0;
     public static User user;
     private static Object lock = new Object();
-    // public static LinkedList<User> usersInConnection = new LinkedList<>();
+    public static LinkedList<User> usersInConnection = new LinkedList<>();
     public static User requestToConnection;
     private JavaInboxesListener listener = null;
     private UserInboxListener userInboxListener = null;
@@ -151,7 +153,7 @@ public class HomeScreenController extends Thread implements Initializable {
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
-                        activeUsersBox.getItems().clear();//mozda ovo ne radi
+                        activeUsersBox.getItems().clear();
                         for (String s : activeUsers) {
                             activeUsersBox.getItems().add(s);
                         }
@@ -175,22 +177,88 @@ public class HomeScreenController extends Thread implements Initializable {
 
             String chosenName = activeUsersBox.getSelectionModel().getSelectedItem().toString();
             requestToConnection = new User(chosenName, new File("src" + File.separator + "resources" + File.separator + "inboxes" + File.separator + chosenName + "_inbox"));
-            //usersInConnection.addFirst(tmp);
-           //activeUsersBox.setValue(null);
+
             Stage stage = new Stage();
             Parent root = FXMLLoader.load(getClass().getResource("../view/requestSending.fxml"));
             stage.setTitle(user.getName() + " sending a chat request");
-            //stage.getIcons().clear();
-            //stage.getIcons().add(new Image(getClass().getResourceAsStream(".."+ File.separator+"resources"+File.separator+"homeScreenIcon.png")));
             stage.setScene(new Scene(root));
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    public static void action(String message){
+
+    public static void action(String message) {
+
+        if (message.contains("request")) {
+            try {
+                Stage stage = new Stage();
+                Parent root = FXMLLoader.load(new URL("src/view/requestReceivedScreen.fxml"));
+                stage.setTitle(user.getName() + " received a chat request");
+                stage.setScene(new Scene(root));
+                stage.show();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
 
-        System.out.println(message);
+
+
+        }else{
+            System.out.println(message);
+        }
+
+
+
+    }
+
+
+    public static void userSelectYes() {
+        usersInConnection.addFirst(requestToConnection);
+
+        try{
+            BufferedWriter out=new BufferedWriter(new FileWriter(requestToConnection.getInboxDirectory()+File.separator+user.getName()+".txt"));
+            out.write(user.getName()+":reply=yes");
+            out.close();
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Stage stage = new Stage();
+                    Parent root = FXMLLoader.load(getClass().getResource("../view/chatScreen.fxml"));
+                    stage.setTitle(user.getName() + " in connection with "+usersInConnection.getFirst().getName());
+                    stage.setScene(new Scene(root));
+                    stage.show();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
+
+    }
+
+
+    public static void userSelectNo() {
+
+        try{
+            BufferedWriter out=new BufferedWriter(new FileWriter(requestToConnection.getInboxDirectory()+File.separator+user.getName()+".txt"));
+            out.write(user.getName()+":reply=no");
+            out.close();
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
     }
 }

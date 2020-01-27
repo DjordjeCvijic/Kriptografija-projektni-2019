@@ -21,6 +21,17 @@ public class Main1 extends Application {
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
 
+
+        try {
+            Stage stage = new Stage();
+            root = FXMLLoader.load(getClass().getResource("../view/chatScreen.fxml"));
+            //stage.setTitle(user.getName() + " received a chat request");
+            stage.setScene(new Scene(root));
+            stage.show();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
 

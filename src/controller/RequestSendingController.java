@@ -2,7 +2,10 @@ package controller;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.FileChooser;
@@ -52,8 +55,8 @@ public class RequestSendingController implements Initializable {
 
         User user=HomeScreenController.requestToConnection;
         try{
-            BufferedWriter out=new BufferedWriter(new FileWriter(user.getInboxDirectory()+File.separator+LoginController.userName+".txt"));
-            out.write("request");
+            BufferedWriter out=new BufferedWriter(new FileWriter(user.getInboxDirectory()+File.separator+HomeScreenController.user.getName()+".txt"));
+            out.write(HomeScreenController.user.getName()+":request");
             out.close();
 
 
@@ -61,8 +64,13 @@ public class RequestSendingController implements Initializable {
             e.printStackTrace();
         }
 
+
+
+
         Stage stage = (Stage) noBtn.getScene().getWindow();
         stage.close();
+
+
 
     }
 }
