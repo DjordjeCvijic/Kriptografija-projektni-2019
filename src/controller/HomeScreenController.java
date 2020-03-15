@@ -41,10 +41,10 @@ public class HomeScreenController extends Thread implements Initializable {
     private int numOfActiveUsers = 0;
     public static User user;
     private static Object lock = new Object();
-    public static LinkedList<User> usersInConnection = new LinkedList<>();
+    public static User usersInConnection = null;
     public static User requestToConnection;
-    private JavaInboxesListener listener = null;
-    private UserInboxListener userInboxListener = null;
+    private static JavaInboxesListener listener = null;
+    private static UserInboxListener userInboxListener = null;
     public String selectedUser = null;
 
     private Boolean flag = true;
@@ -187,26 +187,59 @@ public class HomeScreenController extends Thread implements Initializable {
             e.printStackTrace();
         }
     }
+    public static void request(String message){
+        int index = message.indexOf(':');
+        String name = message.substring(0, index);
+        requestToConnection = new User(name, new File("src" + File.separator + "resources" + File.separator + "inboxes" + File.separator + name + "_inbox"));
+        try {
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    try{
+                        Stage stage = new Stage();
+                        Parent root = FXMLLoader.load(getClass().getResource("../view/requestReceivedScreen.fxml"));
+                        stage.setTitle(user.getName() + " received a chat request");
+                        stage.setScene(new Scene(root));
+                        stage.show();
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            });
 
-    public static void action(String message) {
-
-        if (message.contains("request")) {
-            try {
-                Stage stage = new Stage();
-                Parent root = FXMLLoader.load(new URL("src/view/requestReceivedScreen.fxml"));
-                stage.setTitle(user.getName() + " received a chat request");
-                stage.setScene(new Scene(root));
-                stage.show();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-
-
-
-        }else{
-            System.out.println(message);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+    }
+    public static void reply(){
+        usersInConnection=requestToConnection;
+
+
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Stage stage = new Stage();
+                    Parent root = FXMLLoader.load(getClass().getResource("../view/chatScreen.fxml"));
+                    stage.setTitle(user.getName() + " in connection with "+usersInConnection.getName());
+                    stage.setScene(new Scene(root));
+                    stage.show();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
+    }
+
+    public static void sendMessage(String message) {
+
+            int index = message.indexOf(':');
+            String tmp = message.substring(index+1,message.length());
+            ChatScreenController.writeMessage(tmp);
+
 
 
 
@@ -214,7 +247,8 @@ public class HomeScreenController extends Thread implements Initializable {
 
 
     public static void userSelectYes() {
-        usersInConnection.addFirst(requestToConnection);
+        usersInConnection=requestToConnection;
+
 
         try{
             BufferedWriter out=new BufferedWriter(new FileWriter(requestToConnection.getInboxDirectory()+File.separator+user.getName()+".txt"));
@@ -233,7 +267,7 @@ public class HomeScreenController extends Thread implements Initializable {
                 try {
                     Stage stage = new Stage();
                     Parent root = FXMLLoader.load(getClass().getResource("../view/chatScreen.fxml"));
-                    stage.setTitle(user.getName() + " in connection with "+usersInConnection.getFirst().getName());
+                    stage.setTitle(user.getName() + " in connection with "+usersInConnection.getName());
                     stage.setScene(new Scene(root));
                     stage.show();
                 } catch (Exception e) {

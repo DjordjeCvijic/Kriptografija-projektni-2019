@@ -20,6 +20,7 @@
       </Label>
       <TextField fx:id="nameTextField" layoutX="143.0" layoutY="70.0" prefHeight="26.0" prefWidth="236.0" />
       <TextField fx:id="passwordTextField" layoutX="142.0" layoutY="120.0" prefHeight="26.0" prefWidth="236.0" />
-      <Button fx:id="loginBtn" layoutX="201.0" layoutY="185.0" mnemonicParsing="false" onAction="#onClick"  prefHeight="36.0" prefWidth="109.0" text="LOGIN" />
+      <Button fx:id="loginBtn" layoutX="205.0" layoutY="176.0" mnemonicParsing="false" onAction="#onClick" prefHeight="36.0" prefWidth="109.0" text="LOGIN" />
+      <Button fx:id="closeBtn" layoutX="296.0" layoutY="245.0" mnemonicParsing="false" onAction="#onCloseBtnClick" prefHeight="36.0" prefWidth="109.0" text="CLOSE" />
    </children>
 </AnchorPane>

@@ -22,7 +22,8 @@ public class Main1 extends Application {
         primaryStage.show();
 
 
-        try {
+
+        /*try {
             Stage stage = new Stage();
             root = FXMLLoader.load(getClass().getResource("../view/chatScreen.fxml"));
             //stage.setTitle(user.getName() + " received a chat request");
@@ -30,7 +31,7 @@ public class Main1 extends Application {
             stage.show();
         }catch (Exception e){
             e.printStackTrace();
-        }
+        }*/
 
     }
 

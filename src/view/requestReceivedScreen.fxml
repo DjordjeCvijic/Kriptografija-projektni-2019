@@ -4,11 +4,10 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane prefHeight="302.0" prefWidth="542.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.RequestReceivedScreenController">
+<AnchorPane prefHeight="245.0" prefWidth="542.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.RequestReceivedScreenController">
    <children>
-      <Label fx:id="messageLabel" layoutX="69.0" layoutY="85.0" prefHeight="53.0" prefWidth="352.0" />
-      <Button fx:id="yesBtn" layoutX="47.0" layoutY="199.0" mnemonicParsing="false" onAction="#onClickYesBtn" prefHeight="46.0" prefWidth="150.0" text="YES" />
-      <Button fx:id="noBtn" layoutX="271.0" layoutY="199.0" mnemonicParsing="false" onAction="#onClickNoBtn" prefHeight="46.0" prefWidth="150.0" text="NO" />
+      <Label fx:id="messageLabel" layoutX="63.0" layoutY="56.0" prefHeight="53.0" prefWidth="352.0" />
+      <Button fx:id="yesBtn" layoutX="50.0" layoutY="152.0" mnemonicParsing="false" onAction="#onClickYesBtn" prefHeight="46.0" prefWidth="150.0" text="YES" />
+      <Button fx:id="noBtn" layoutX="271.0" layoutY="152.0" mnemonicParsing="false" onAction="#onClickNoBtn" prefHeight="46.0" prefWidth="150.0" text="NO" />
    </children>
 </AnchorPane>

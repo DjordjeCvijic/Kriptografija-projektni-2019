@@ -19,6 +19,7 @@ import java.util.ResourceBundle;
 import javafx.scene.image.Image;
 
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import main.Main;
 import model.GenerateAndCheckPassword;
 
@@ -77,6 +78,7 @@ public class LoginController {
             stage.getIcons().clear();
             stage.getIcons().add(new Image(getClass().getResourceAsStream(".." + File.separator + "resources" + File.separator + "homeScreenIcon.png")));
             stage.setScene(new Scene(root));
+
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
@@ -100,4 +102,8 @@ public class LoginController {
 
     }
 
+    public void onCloseBtnClick(ActionEvent actionEvent) {
+        Stage stage = (Stage) loginBtn.getScene().getWindow();
+        stage.close();
+    }
 }

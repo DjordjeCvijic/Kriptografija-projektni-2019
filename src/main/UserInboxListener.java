@@ -80,12 +80,29 @@ public class UserInboxListener extends Thread {
 
         Kind<?> kind = event.kind();
 
+        try{
+            sleep(300);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
         if (kind.equals(StandardWatchEventKinds.ENTRY_CREATE)) {
             Path entryCreated = (Path) event.context();
             try{
                 BufferedReader in=new BufferedReader(new FileReader(directoryPath.toString()+File.separator+entryCreated));
-                HomeScreenController.action(in.readLine());
+                String tmp=in.readLine();
                 in.close();
+                System.out.println(directoryPath+" u lisineru poruka     "+tmp);
+                if(tmp.contains("request")) {
+                    HomeScreenController.request(tmp);
+                }else if(tmp.contains(":reply=yes")){
+                    HomeScreenController.reply();
+                }else{
+                    HomeScreenController.sendMessage(tmp);
+                }
+
+
                 PrintWriter out=new PrintWriter(new BufferedWriter(new FileWriter(directoryPath.toString()+File.separator+entryCreated)));
                 out.close();
             }catch (Exception e){

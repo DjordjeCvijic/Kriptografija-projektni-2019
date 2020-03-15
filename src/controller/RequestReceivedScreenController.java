@@ -5,6 +5,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
+
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -26,12 +28,16 @@ public class RequestReceivedScreenController implements Initializable {
     public void onClickYesBtn(ActionEvent actionEvent) {
 
         HomeScreenController.userSelectYes();
+        Stage stage = (Stage) yesBtn.getScene().getWindow();
+        stage.close();
 
 
     }
 
     public void onClickNoBtn(ActionEvent actionEvent) {
         HomeScreenController.userSelectNo();
+        Stage stage = (Stage) yesBtn.getScene().getWindow();
+        stage.close();
     }
 
 
