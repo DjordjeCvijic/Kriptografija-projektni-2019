@@ -1,5 +1,7 @@
 package controller;
 
+import certificateService.CertificateDetails;
+import certificateService.CertificateUtil;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -45,27 +47,48 @@ public class LoginController {
 
         userName = nameTextField.getText();
         String password = passwordTextField.getText();
-        if (userName.equals("")) loginError();
-        else {
-            File userAccountsFile = new File("src" + File.separator + "resources" + File.separator + "user_accounts");
+        if (userName.equals(""))
 
-            File account = new File(userAccountsFile.getPath() + File.separator + userName);
+            loginError("Invalid username or password");
+
+        else {
+            File userAccountsFile = new File("src" + File.separator + "resources" + File.separator + "user_accounts"+ File.separator +userName);
+
+            File account = new File(userAccountsFile.getPath() +File.separator+userName);
+            System.out.println(account.toString());
             if (account.exists()) {
                 try {
 
-                    if (GenerateAndCheckPassword.checkPassword(userName, password)) {
+
+                    if (GenerateAndCheckPassword.checkPassword(userName, password)) {//provjera sifre
+                        if(checkCertificate(userName))
                         showHomeScreen();
+                        else{
+
+                            loginError("Invalid Certificate");
+                        }
 
                     } else
-                        loginError();
+                        loginError("Invalid username or password");
+
+
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
 
 
-            } else loginError();
+            } else loginError("Invalid username or password");
         }
+
+    }
+
+    private boolean checkCertificate(String userName) {
+        CertificateDetails certDetails = CertificateUtil.getCertificateDetails("src" + File.separator + "resources" + File.separator + "user_accounts"+
+                File.separator+"user5"+File.separator+"user5-store.jks", "user5store");
+
+
+        return certDetails.checkCertificate();
 
     }
 
@@ -86,7 +109,7 @@ public class LoginController {
 
     }
 
-    private void loginError() {
+    private void loginError(String message) {
 
         Platform.runLater(new Runnable() {
             @Override
@@ -94,7 +117,7 @@ public class LoginController {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Warning");
                 alert.setHeaderText(null);
-                alert.setContentText("Invalid username or password");
+                alert.setContentText(message);
                 alert.show();
             }
         });

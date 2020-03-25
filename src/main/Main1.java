@@ -8,35 +8,22 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 
-public class Main1 extends Application {
-
-
-    @Override
-    public void start(Stage primaryStage) throws Exception{
-
-        Parent root = FXMLLoader.load(getClass().getResource("../view/chatScreen.fxml"));
-        primaryStage.setTitle("Login");
-        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream(".."+ File.separator+"resources"+File.separator+"loginIcon.jpg")));
-        primaryStage.setScene(new Scene(root));
-        primaryStage.show();
-
-
-
-        /*try {
-            Stage stage = new Stage();
-            root = FXMLLoader.load(getClass().getResource("../view/chatScreen.fxml"));
-            //stage.setTitle(user.getName() + " received a chat request");
-            stage.setScene(new Scene(root));
-            stage.show();
-        }catch (Exception e){
-            e.printStackTrace();
-        }*/
-
-    }
-
-
+public class Main1 {
     public static void main(String[] args) {
-        launch(args);
+        // File f=new File("src"+ File.separator+"resources"+File.separator+"li.jpg");
+        // ImageWorker iw=new ImageWorker(f.toString());
+        File f=ImageWorker.putData(new File("src"+ File.separator+"resources"+File.separator+"li.jpg"),"poruka");
+        System.out.println("nova slika: "+f.toString());
+
+
+
+        int ret = 0;
+        for (int i = 0; i < 4; i++) {
+            ret <<= 8;
+            // ret |= (int)sizeOfDataInBytes[i] & 0xFF;
+        }
+        System.out.println(ret);
     }
 }

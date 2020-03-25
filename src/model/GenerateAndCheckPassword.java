@@ -51,7 +51,7 @@ public class GenerateAndCheckPassword {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-1");
              enteredPassInBytes = md.digest(enteredPass.getBytes(StandardCharsets.UTF_8));
-            FileInputStream fis=new FileInputStream("src" + File.separator + "resources" + File.separator + "user_accounts"+File.separator+userName);
+            FileInputStream fis=new FileInputStream("src" + File.separator + "resources" + File.separator + "user_accounts"+File.separator+userName+File.separator+userName);
             correctPassInBytes=fis.readAllBytes();
             fis.close();
 
