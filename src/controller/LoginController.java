@@ -1,7 +1,7 @@
 package controller;
 
-import certificateService.CertificateDetails;
-import certificateService.CertificateUtil;
+import certificateServices.CertificateDetails;
+import certificateServices.CertificateUtil;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -12,18 +12,14 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.net.URL;
 import java.util.ResourceBundle;
 
 import javafx.scene.image.Image;
 
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-import main.Main;
-import model.GenerateAndCheckPassword;
+import cryptographyServises.GenerateAndCheckPassword;
 
 
 public class LoginController {

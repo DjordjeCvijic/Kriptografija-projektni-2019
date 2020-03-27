@@ -1,16 +1,16 @@
-package main;
+package listeners;
 
 
-import java.io.File;
+import java.io.*;
 import java.nio.file.*;
 import java.nio.file.WatchEvent.Kind;
 import java.util.logging.Level;
 
 import controller.HomeScreenController;
 
-public class JavaInboxesListener extends Thread {
+public class UserInboxListener extends Thread {
 
-    private Path directoryPath = (new File("src" + File.separator + "resources" + File.separator + "inboxes")).toPath();
+    private Path directoryPath = null;//(new File("src" + File.separator + "resources" + File.separator + "inboxes")).toPath();
     private String userName;
     private boolean running = false;
 
@@ -31,9 +31,9 @@ public class JavaInboxesListener extends Thread {
         this.running = running;
     }
 
-    public JavaInboxesListener(String name) {
+    public UserInboxListener(File file) {
 
-        userName = name;
+       directoryPath=file.toPath();
     }
 
     @Override
@@ -64,7 +64,7 @@ public class JavaInboxesListener extends Thread {
                     break;
                 }
             }
-            System.out.println(" java zavrsio");
+            System.out.println("user zavrsio");
 
 
         } catch (InterruptedException e) {
@@ -80,24 +80,38 @@ public class JavaInboxesListener extends Thread {
 
         Kind<?> kind = event.kind();
 
+        try{
+            sleep(300);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
         if (kind.equals(StandardWatchEventKinds.ENTRY_CREATE)) {
             Path entryCreated = (Path) event.context();
+            try{
+                BufferedReader in=new BufferedReader(new FileReader(directoryPath.toString()+File.separator+entryCreated));
+                String tmp=in.readLine();
+                in.close();
+                System.out.println(directoryPath+" u lisineru poruka     "+tmp);
+                if(tmp.contains("request")) {
+                    HomeScreenController.request(tmp);
+                }else if(tmp.contains(":reply=yes")){
+                    HomeScreenController.reply();
+                }else{
+                    HomeScreenController.sendMessage(tmp);
+                }
 
-            int index = entryCreated.toString().indexOf('_');
-            String newUser = entryCreated.toString().substring(0, index);
-            HomeScreenController.addActiveUser(newUser);
 
-
-        } else if (kind.equals(StandardWatchEventKinds.ENTRY_DELETE)) {
-            Path entryDeleted = (Path) event.context();
-            int index = 0;
-
-            if (!entryDeleted.toString().equals(userName + "_inbox")) {
-                index = entryDeleted.toString().indexOf('_');
-                String deletedUser = entryDeleted.toString().substring(0, index);
-                HomeScreenController.removeActiveUser(deletedUser);
-
+                PrintWriter out=new PrintWriter(new BufferedWriter(new FileWriter(directoryPath.toString()+File.separator+entryCreated)));
+                out.close();
+            }catch (Exception e){
+                e.printStackTrace();
             }
+            new File(directoryPath.toString()+File.separator+entryCreated).delete();
+
+
+
 
         }
     }

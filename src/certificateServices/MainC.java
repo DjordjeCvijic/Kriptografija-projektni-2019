@@ -1,4 +1,4 @@
-package certificateService;
+package certificateServices;
 
 import java.io.File;
 import java.security.Principal;
@@ -24,5 +24,9 @@ public class MainC {
         }
 
         System.out.println(on.getName());
+
+        PublicKey pk=CertificateUtil.getPublicKey("src" + File.separator + "resources" + File.separator + "user_accounts"+
+                File.separator+"user1"+File.separator+"trustStore.jks","truststore","user2sertifikat");
+        System.out.println(pk.toString());
     }
 }

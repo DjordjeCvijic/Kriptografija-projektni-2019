@@ -1,11 +1,11 @@
-package predavanja;
+package cryptographyServises;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import javax.crypto.*;
 
-public class Crypto {
+public class SymmetricAlgorithms {
 
     private String symmetricAlgorithm = "DES";
     private SecretKey symmetricKey;
@@ -20,18 +20,18 @@ public class Crypto {
         algs.add("Blowfish");
     }
 
-    public Crypto() {
+    public SymmetricAlgorithms() {
         super();
     }
 
-    public Crypto(String symmetricAlgorithm) throws NoSuchAlgorithmException {
-        if (!Crypto.algs.contains(symmetricAlgorithm))
+    public SymmetricAlgorithms(String symmetricAlgorithm) throws NoSuchAlgorithmException {
+        if (!SymmetricAlgorithms.algs.contains(symmetricAlgorithm))
             throw new NoSuchAlgorithmException(
                     "Specified symmetric algorithm " + symmetricAlgorithm + " not supported!!!");
         this.symmetricAlgorithm = symmetricAlgorithm;
     }
 
-    private void generateSymmetricKey() throws NoSuchAlgorithmException {
+    public void generateSymmetricKey() throws NoSuchAlgorithmException {
         KeyGenerator keygen = KeyGenerator.getInstance(symmetricAlgorithm);
         symmetricKey = keygen.generateKey();
     }
@@ -54,7 +54,10 @@ public class Crypto {
         return output;
     }
 
-    public static void main(String[] args) throws Exception {
+    public SecretKey getSymmetricKey() {
+        return symmetricKey;
+    }
+    /*public static void main(String[] args) throws Exception {
         // int index = (int) Math.round(Math.random() * (algs.size()-1));
         for (int index = 0; index < algs.size(); index++) {
             Crypto cu = new Crypto(Crypto.algs.get(index));
@@ -73,5 +76,5 @@ public class Crypto {
             System.out.println("====================");
             System.out.println("====================");
         }
-    }
+    }*/
 }

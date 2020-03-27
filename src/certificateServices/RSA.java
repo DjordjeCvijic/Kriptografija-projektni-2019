@@ -1,4 +1,4 @@
-package certificateService;
+package certificateServices;
 
 import javax.crypto.Cipher;
 import java.nio.charset.StandardCharsets;

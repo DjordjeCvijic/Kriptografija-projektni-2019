@@ -1,5 +1,8 @@
 package controller;
 
+import certificateServices.CertificateDetails;
+import certificateServices.CertificateUtil;
+import certificateServices.RSA;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -11,16 +14,22 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
-import main.*;
+import listeners.JavaInboxesListener;
+import listeners.UserInboxListener;
 import model.User;
+import steganography.Steganography;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.net.URL;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Base64;
 import java.util.ResourceBundle;
 
 public class HomeScreenController extends Thread implements Initializable {
@@ -46,8 +55,30 @@ public class HomeScreenController extends Thread implements Initializable {
     private static JavaInboxesListener listener = null;
     private static UserInboxListener userInboxListener = null;
     public String selectedUser = null;
+    public static SecretKey symmetricKey;
 
     private Boolean flag = true;
+
+    public static void setSymmetricKey(String message) {
+        int index = message.indexOf('#');
+        String pathToImg=message.substring(index+1,message.length());
+        String digitalEnvelop =Steganography.decode(new File(pathToImg));
+
+        CertificateDetails cd= CertificateUtil.getCertificateDetails("src" + File.separator + "resources" + File.separator + "user_accounts" +
+                File.separator + user.getName() + File.separator + user.getName() + "-store.jks",user.getName()+"store");
+        PrivateKey privateKey=cd.getPrivateKey();
+        String keyInString="";
+        try{
+            keyInString=RSA.decrypt(digitalEnvelop,privateKey);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        byte[] decodedKey = Base64.getDecoder().decode(keyInString);
+        symmetricKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "DES");
+        System.out.println(" dobijen Kljuc: " + new String(symmetricKey.getEncoded()));
+
+
+    }
 
     public void initialize(URL location, ResourceBundle resources) {
 
@@ -55,8 +86,8 @@ public class HomeScreenController extends Thread implements Initializable {
 
 
             user = new User(LoginController.userName, new File("src" + File.separator + "resources" + File.separator + "inboxes" + File.separator + LoginController.userName + "_inbox"));
-
-
+            user.setKeyStorePath("src"+File.separator+"resources"+File.separator+"user_accounts"+File.separator+user.getName()+File.separator+user.getName()+"-store.jks");
+            user.setTrustStorePath("src"+File.separator+"resources"+File.separator+"user_accounts"+File.separator+user.getName()+File.separator+"trustStore.jks");
             Image image1 = new Image(new FileInputStream("src" + File.separator + "resources" + File.separator + "homeScreenIcon.png"));
             userImage.setImage(image1);
             usernameLabel.setText(user.getName());
@@ -177,7 +208,8 @@ public class HomeScreenController extends Thread implements Initializable {
 
             String chosenName = activeUsersBox.getSelectionModel().getSelectedItem().toString();
             requestToConnection = new User(chosenName, new File("src" + File.separator + "resources" + File.separator + "inboxes" + File.separator + chosenName + "_inbox"));
-
+            requestToConnection.setTrustStorePath("src"+File.separator+"resources"+File.separator+"user_accounts"+File.separator+chosenName+File.separator+"trustStore.jks");
+            requestToConnection.setKeyStorePath("src"+File.separator+"resources"+File.separator+"user_accounts"+File.separator+chosenName+File.separator+chosenName+"-store.jks");
             Stage stage = new Stage();
             Parent root = FXMLLoader.load(getClass().getResource("../view/requestSending.fxml"));
             stage.setTitle(user.getName() + " sending a chat request");
@@ -191,6 +223,12 @@ public class HomeScreenController extends Thread implements Initializable {
         int index = message.indexOf(':');
         String name = message.substring(0, index);
         requestToConnection = new User(name, new File("src" + File.separator + "resources" + File.separator + "inboxes" + File.separator + name + "_inbox"));
+
+        setSymmetricKey(message);
+
+
+
+
         try {
             Platform.runLater(new Runnable() {
                 @Override

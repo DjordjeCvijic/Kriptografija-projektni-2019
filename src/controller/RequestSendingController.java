@@ -1,27 +1,26 @@
 package controller;
 
-import certificateService.CertificateUtil;
-import certificateService.RSA;
+import certificateServices.CertificateUtil;
+import certificateServices.RSA;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.User;
-import controller.LoginController;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.net.URL;
-import java.nio.Buffer;
 import java.security.PublicKey;
+import java.util.Base64;
 import java.util.ResourceBundle;
+
+import cryptographyServises.SymmetricAlgorithms;
+import steganography.Steganography;
 
 public class RequestSendingController implements Initializable {
 
@@ -44,7 +43,7 @@ public class RequestSendingController implements Initializable {
         FileChooser fileChooser = new FileChooser();
         selectedFile = fileChooser.showOpenDialog(null);
         try {
-            System.out.println(selectedFile.toString());
+            System.out.println("fajl za ubaciti poruku " + selectedFile.toString());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -58,21 +57,30 @@ public class RequestSendingController implements Initializable {
 
     public void onClickYesBtn(ActionEvent actionEvent) {
         User user = HomeScreenController.requestToConnection;
-        //u selectedFile treba ubaciti link sa slikom u kojoj je ubacea envelopa
-        String tmpString = "Ja sam djordje";
+        String digitalEnvelop="";
 
-        PublicKey publicKey = CertificateUtil.getPublicKey("src" + File.separator + "resources" + File.separator + "user_accounts" +
-                File.separator + user.getName() + File.separator + user.getName() + "-store.jks", user.getName() + "store", user.getName());
+        SymmetricAlgorithms sa = new SymmetricAlgorithms();
         try {
-            String digitalEnvelop = RSA.encrypt(tmpString, publicKey);
+            sa.generateSymmetricKey();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        System.out.println("poslan Kljuc: " + new String(sa.getSymmetricKey().getEncoded()));
+        try {
+        HomeScreenController.symmetricKey=sa.getSymmetricKey();
+        String key = Base64.getEncoder().encodeToString(sa.getSymmetricKey().getEncoded());
+        PublicKey publicKey = CertificateUtil.getPublicKey(HomeScreenController.user.getTrustStorePath(),"truststore",user.getName()+"sertifikat");
+
+            digitalEnvelop = RSA.encrypt(key, publicKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        File img=Steganography.encode(selectedFile,digitalEnvelop);
 
 
         try {
             BufferedWriter out = new BufferedWriter(new FileWriter(user.getInboxDirectory() + File.separator + HomeScreenController.user.getName() + ".txt"));
-            out.write(HomeScreenController.user.getName() + ":request");
+            out.write(HomeScreenController.user.getName() + ":request#"+img.toString());
             out.close();
 
 

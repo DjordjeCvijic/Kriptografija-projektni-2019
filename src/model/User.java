@@ -6,6 +6,8 @@ public class User {
 
     private String name;
     private File inboxDirectory;
+    private String trustStorePath;
+    private String keyStorePath;
     public User(String n,File f){
         name=n;
         inboxDirectory=f;
@@ -29,4 +31,19 @@ public class User {
         inboxDirectory=null;
     }
 
+    public String getTrustStorePath() {
+        return trustStorePath;
+    }
+
+    public void setTrustStorePath(String trustStore) {
+        this.trustStorePath = trustStore;
+    }
+
+    public String getKeyStorePath() {
+        return keyStorePath;
+    }
+
+    public void setKeyStorePath(String keyStore) {
+        this.keyStorePath = keyStore;
+    }
 }
