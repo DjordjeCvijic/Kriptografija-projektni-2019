@@ -1,4 +1,4 @@
-package cryptographyServises;
+package cryptographyServices;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -56,6 +56,10 @@ public class SymmetricAlgorithms {
 
     public SecretKey getSymmetricKey() {
         return symmetricKey;
+    }
+
+    public void setSymmetricKey(SecretKey sk){
+        symmetricKey=sk;
     }
     /*public static void main(String[] args) throws Exception {
         // int index = (int) Math.round(Math.random() * (algs.size()-1));

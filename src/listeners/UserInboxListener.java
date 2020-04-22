@@ -64,7 +64,7 @@ public class UserInboxListener extends Thread {
                     break;
                 }
             }
-            System.out.println("user zavrsio");
+           // System.out.println("user zavrsio");
 
 
         } catch (InterruptedException e) {
@@ -92,16 +92,16 @@ public class UserInboxListener extends Thread {
             try{
                 BufferedReader in=new BufferedReader(new FileReader(directoryPath.toString()+File.separator+entryCreated));
                 String tmp=in.readLine();
-                in.close();
-                System.out.println(directoryPath+" u lisineru poruka     "+tmp);
+
+                //System.out.println(directoryPath+" u lisineru poruka     "+tmp);
                 if(tmp.contains("request")) {
                     HomeScreenController.request(tmp);
                 }else if(tmp.contains(":reply=yes")){
-                    HomeScreenController.reply();
+                    HomeScreenController.replyIsYes();
                 }else{
-                    HomeScreenController.sendMessage(tmp);
+                    HomeScreenController.messageHasBeenRead(tmp);
                 }
-
+                in.close();
 
                 PrintWriter out=new PrintWriter(new BufferedWriter(new FileWriter(directoryPath.toString()+File.separator+entryCreated)));
                 out.close();

@@ -64,7 +64,7 @@ public class JavaInboxesListener extends Thread {
                     break;
                 }
             }
-            System.out.println(" java zavrsio");
+           // System.out.println(" java zavrsio");
 
 
         } catch (InterruptedException e) {

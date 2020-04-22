@@ -65,9 +65,9 @@ public class CertificateUtil {
     public static PublicKey getPublicKey(String jksPath,String jksPassword,String certificateAlias){
         PublicKey publicKey=null;
 
-        System.out.println("skladiste "+jksPath);
-        System.out.println("Sifra "+jksPassword);
-        System.out.println("alias "+certificateAlias);
+        //System.out.println("skladiste "+jksPath);
+        //System.out.println("Sifra "+jksPassword);
+       // System.out.println("alias "+certificateAlias);
         try {
             KeyStore keyStore = KeyStore.getInstance("JKS");
             keyStore.load(new FileInputStream(jksPath), jksPassword.toCharArray());

@@ -1,4 +1,4 @@
-package cryptographyServises;
+package cryptographyServices;
 
 
 import java.io.*;
@@ -13,7 +13,7 @@ public class GenerateAndCheckPassword {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-1");
             byte[] hashInBytes = md.digest(src.getBytes(StandardCharsets.UTF_8));
-            System.out.println(bytesToHex3(hashInBytes));
+           // System.out.println(bytesToHex3(hashInBytes));
             FileOutputStream fos = new FileOutputStream("src" + File.separator + "resources" + File.separator + "user_accounts"+File.separator+src) ;
                 fos.write(hashInBytes);
 
@@ -21,7 +21,7 @@ public class GenerateAndCheckPassword {
                 FileInputStream fis=new FileInputStream("src" + File.separator + "resources" + File.separator + "user_accounts"+File.separator+src);
                 byte[]tmp=fis.readAllBytes();
                 fis.close();
-            System.out.println(bytesToHex3(tmp));
+            //System.out.println(bytesToHex3(tmp));
 
         }catch (Exception e){
             e.printStackTrace();
@@ -71,6 +71,8 @@ public class GenerateAndCheckPassword {
 
 
     }
+
+
 
 
 

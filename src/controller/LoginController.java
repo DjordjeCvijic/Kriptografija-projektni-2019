@@ -19,7 +19,7 @@ import java.util.ResourceBundle;
 import javafx.scene.image.Image;
 
 import javafx.stage.Stage;
-import cryptographyServises.GenerateAndCheckPassword;
+import cryptographyServices.GenerateAndCheckPassword;
 
 
 public class LoginController {
@@ -51,7 +51,7 @@ public class LoginController {
             File userAccountsFile = new File("src" + File.separator + "resources" + File.separator + "user_accounts"+ File.separator +userName);
 
             File account = new File(userAccountsFile.getPath() +File.separator+userName);
-            System.out.println(account.toString());
+            //System.out.println(account.toString());
             if (account.exists()) {
                 try {
 
@@ -81,7 +81,7 @@ public class LoginController {
 
     private boolean checkCertificate(String userName) {
         CertificateDetails certDetails = CertificateUtil.getCertificateDetails("src" + File.separator + "resources" + File.separator + "user_accounts"+
-                File.separator+"user5"+File.separator+"user5-store.jks", "user5store");
+                File.separator+"user5"+File.separator+"user5-store.jks", "user5store");//treba popraviti
 
 
         return certDetails.checkCertificate();

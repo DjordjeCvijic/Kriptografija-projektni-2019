@@ -19,7 +19,7 @@ import java.security.PublicKey;
 import java.util.Base64;
 import java.util.ResourceBundle;
 
-import cryptographyServises.SymmetricAlgorithms;
+import cryptographyServices.SymmetricAlgorithms;
 import steganography.Steganography;
 
 public class RequestSendingController implements Initializable {
@@ -43,7 +43,7 @@ public class RequestSendingController implements Initializable {
         FileChooser fileChooser = new FileChooser();
         selectedFile = fileChooser.showOpenDialog(null);
         try {
-            System.out.println("fajl za ubaciti poruku " + selectedFile.toString());
+           // System.out.println("fajl za ubaciti poruku " + selectedFile.toString());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -65,7 +65,7 @@ public class RequestSendingController implements Initializable {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("poslan Kljuc: " + new String(sa.getSymmetricKey().getEncoded()));
+        //System.out.println("poslan Kljuc: " + new String(sa.getSymmetricKey().getEncoded()));
         try {
         HomeScreenController.symmetricKey=sa.getSymmetricKey();
         String key = Base64.getEncoder().encodeToString(sa.getSymmetricKey().getEncoded());

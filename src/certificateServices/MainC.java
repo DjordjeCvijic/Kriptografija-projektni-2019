@@ -1,14 +1,16 @@
 package certificateServices;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
+import java.util.Base64;
 
 public class MainC {
     public static void main(String[] args) {
-        CertificateDetails certDetails = CertificateUtil.getCertificateDetails("src" + File.separator + "resources" + File.separator + "user_accounts"+
+        /*CertificateDetails certDetails = CertificateUtil.getCertificateDetails("src" + File.separator + "resources" + File.separator + "user_accounts"+
                 File.separator+"user5"+File.separator+"user5-store.jks", "user5store");
         PrivateKey privateKey = certDetails.getPrivateKey();
         PublicKey publicKey = certDetails.getPublicKey();
@@ -25,8 +27,18 @@ public class MainC {
 
         System.out.println(on.getName());
 
-        PublicKey pk=CertificateUtil.getPublicKey("src" + File.separator + "resources" + File.separator + "user_accounts"+
+        PublicKey pk=CertificateUtil.getPublicKey(s"src" + File.separator + "resources" + File.separator + "user_accounts"+
                 File.separator+"user1"+File.separator+"trustStore.jks","truststore","user2sertifikat");
-        System.out.println(pk.toString());
+        System.out.println(pk.toString());*/
+
+        String s="djorjdje";
+        byte[]sByte1=s.getBytes();
+        String tmp=" ";
+        for(byte b:sByte1)
+            tmp+=b;
+        System.out.println(tmp);
+        for(byte b:sByte1)
+            System.out.println(b);
+
     }
 }

@@ -75,7 +75,7 @@ public class HomeScreenController extends Thread implements Initializable {
         }
         byte[] decodedKey = Base64.getDecoder().decode(keyInString);
         symmetricKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "DES");
-        System.out.println(" dobijen Kljuc: " + new String(symmetricKey.getEncoded()));
+        //System.out.println(" dobijen Kljuc: " + new String(symmetricKey.getEncoded()));
 
 
     }
@@ -250,7 +250,7 @@ public class HomeScreenController extends Thread implements Initializable {
         }
 
     }
-    public static void reply(){
+    public static void replyIsYes(){
         usersInConnection=requestToConnection;
 
 
@@ -272,7 +272,7 @@ public class HomeScreenController extends Thread implements Initializable {
 
     }
 
-    public static void sendMessage(String message) {
+    public static void messageHasBeenRead(String message) {
 
             int index = message.indexOf(':');
             String tmp = message.substring(index+1,message.length());
