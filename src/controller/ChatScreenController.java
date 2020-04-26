@@ -9,14 +9,14 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import model.User;
 import cryptographyServices.SymmetricAlgorithms;
+
 import javax.crypto.SecretKey;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.security.MessageDigest;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
@@ -37,8 +37,8 @@ public class ChatScreenController extends Thread implements Initializable {
     private static Object lock1 = new Object();
     private Boolean flagForThread = true;
     private static SecretKey symmetricKey;
-    private SymmetricAlgorithms symmetricAlgorithms=new SymmetricAlgorithms();
-    private File file=new File("pomoc.txt");
+    private SymmetricAlgorithms symmetricAlgorithms = new SymmetricAlgorithms();
+    private File file = new File("pomoc.txt");
 
 
     @Override
@@ -48,7 +48,7 @@ public class ChatScreenController extends Thread implements Initializable {
 
         user = HomeScreenController.user;
         usersInConnection = HomeScreenController.usersInConnection;
-        symmetricKey=HomeScreenController.symmetricKey;
+        symmetricKey = HomeScreenController.symmetricKey;
 
         symmetricAlgorithms.setSymmetricKey(symmetricKey);
 
@@ -68,43 +68,48 @@ public class ChatScreenController extends Thread implements Initializable {
         textArea.setText(finaleMessage);
         textField.clear();
         try {
-            String messageToWrite=makeMessageToWrite(firstMessage);
+            String messageToWrite = makeMessageToWrite(firstMessage);
 
-            PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(usersInConnection.getInboxDirectory() + File.separator + user.getName() + ".txt")));
-            out.println(user.getName() + ":" + messageToWrite);
-            out.close();
+            //PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(usersInConnection.getInboxDirectory() + File.separator + user.getName() + ".txt")));
+            //out.println(user.getName() + ":" + messageToWrite);
+            //out.close();
+            byte[] messageToWriteInB = (user.getName() + ":" + messageToWrite).getBytes(StandardCharsets.UTF_8);
+            Files.write(new File(usersInConnection.getInboxDirectory() + File.separator + user.getName() + ".txt").toPath(), messageToWriteInB);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    private String metoda(byte []bytes){
-        String tmp=" ";
-        for(byte b:bytes)
-            tmp+=b;
+
+    private String metoda(byte[] bytes) {
+        String tmp = " ";
+        for (byte b : bytes)
+            tmp += b;
         return tmp;
     }
 
     private String makeMessageToWrite(String firstMessage) {
-        String messageToWrite="";
+        String messageToWrite = "";
         try {
 
-            byte[] encryptedMessageInBytes =symmetricAlgorithms.symmetricEncrypt(firstMessage.getBytes(StandardCharsets.UTF_8));
-            try{
-                String tmp=new String(encryptedMessageInBytes);
-                PrintWriter out=new PrintWriter(new BufferedWriter(new FileWriter(file)));
-                out.println(tmp);
-                out.close();
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+            //String encryptedMessageInBytes =symmetricAlgorithms.symmetricEncrypt(firstMessage);
+
+            //enkripcija poruke
+            String encryptedMessage = symmetricAlgorithms.symmetricEncrypt(firstMessage);
+
+            //hesiranje poruke
             MessageDigest md = MessageDigest.getInstance("SHA-1");
-            byte[] encryptedMessageDigest=md.digest(encryptedMessageInBytes);
+            byte[] encryptedMessageDigest = md.digest(encryptedMessage.getBytes(StandardCharsets.UTF_8));
 
-            CertificateDetails certificateDetails=CertificateUtil.getCertificateDetails(user.getKeyStorePath(),user.getName()+"store");
-            String digitalSignature= RSA.encrypt(new String(encryptedMessageDigest),certificateDetails.getPrivateKey());
+            //izvlacenje privatnog kljuca
+            CertificateDetails certificateDetails = CertificateUtil.getCertificateDetails(user.getKeyStorePath(), user.getName() + "store");
+            PrivateKey privateKey=certificateDetails.getPrivateKey();
 
-            messageToWrite+=digitalSignature+"#terminate#"+new String(encryptedMessageInBytes);
-        }catch (Exception e){
+            //digitalno potpisivanje
+            String digitalSignature = RSA.encrypt(new String(encryptedMessageDigest), privateKey);
+
+            messageToWrite += digitalSignature + "#terminate#" +encryptedMessage;
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -114,7 +119,7 @@ public class ChatScreenController extends Thread implements Initializable {
 
     public static void writeMessage(String tmp) {
         message = tmp;
-        synchronized (lock1){
+        synchronized (lock1) {
             lock1.notify();
         }
 
@@ -132,44 +137,42 @@ public class ChatScreenController extends Thread implements Initializable {
             }
             if (flagForThread) {
                 try {
-
+                    //razdvajanje poruke
                     int index = message.indexOf("#terminate#");
                     String digitalSignature = message.substring(0, index);
                     String encryptedMessage = message.substring(index + 11, message.length());
 
-
+                    //izdvajanje javnog kljuca
                     PublicKey publicKey = CertificateUtil.getPublicKey(user.getTrustStorePath(), "truststore", usersInConnection.getName() + "sertifikat");
+
+                    //dekriptovanje digitalnog potpisa
                     String firstDigest = RSA.decrypt(digitalSignature, publicKey);
 
 
-
-
+                    //hesiranje enkriptovane prenesene poruke
                     MessageDigest md = MessageDigest.getInstance("SHA-1");
-                    byte[] secondDigestInBytes=md.digest(encryptedMessage.getBytes(StandardCharsets.UTF_8));
-                    String secondDigest=new String(secondDigestInBytes);
+                    byte[] secondDigestInBytes = md.digest(encryptedMessage.getBytes(StandardCharsets.UTF_8));
+                    String secondDigest = new String(secondDigestInBytes);
 
 
-
-
-                    if(!firstDigest.equals(secondDigest))
+                    if (!firstDigest.equals(secondDigest))
                         throw new Exception("Hes vrijednosti nisu iste");//drugacije nazvati exception
 
 
-                    byte[] decriyptedMessage=symmetricAlgorithms.symmetricDecrypt(encryptedMessage.getBytes(StandardCharsets.UTF_8));
+                    String decriyptedMessage = symmetricAlgorithms.symmetricDecrypt(encryptedMessage);
 
-                    String messageToShow=new String(decriyptedMessage);
                     String timeStamp = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
-                    String messageTmp = usersInConnection.getName() + " [" + timeStamp + "] -> " + messageToShow + "\n\r\n\r";
+                    String messageTmp = usersInConnection.getName() + " [" + timeStamp + "] -> " + decriyptedMessage + "\n\r\n\r";
                     String curent = textArea.getText();
                     String finaleMessage = messageTmp + curent;
                     textArea.clear();
                     textArea.setText(finaleMessage);
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }
-       // System.out.println("tred u cetu zavrsio");
+        // System.out.println("tred u cetu zavrsio");
     }
 
     public void onCloseBtnClick(ActionEvent actionEvent) {

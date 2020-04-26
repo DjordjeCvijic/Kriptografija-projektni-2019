@@ -26,6 +26,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
@@ -289,9 +291,15 @@ public class HomeScreenController extends Thread implements Initializable {
 
 
         try{
-            BufferedWriter out=new BufferedWriter(new FileWriter(requestToConnection.getInboxDirectory()+File.separator+user.getName()+".txt"));
-            out.write(user.getName()+":reply=yes");
-            out.close();
+            //BufferedWriter out=new BufferedWriter(new FileWriter(requestToConnection.getInboxDirectory()+File.separator+user.getName()+".txt"));
+           // out.write(user.getName()+":reply=yes");
+            //out.close();
+
+            String tmp=user.getName()+":reply=yes";
+            byte[] tmpInB=tmp.getBytes(StandardCharsets.UTF_8);
+            Files.write(new File(requestToConnection.getInboxDirectory()+File.separator+user.getName()+".txt").toPath(),tmpInB);
+
+
 
 
         }catch (Exception e){

@@ -81,7 +81,7 @@ public class LoginController {
 
     private boolean checkCertificate(String userName) {
         CertificateDetails certDetails = CertificateUtil.getCertificateDetails("src" + File.separator + "resources" + File.separator + "user_accounts"+
-                File.separator+"user5"+File.separator+"user5-store.jks", "user5store");//treba popraviti
+                File.separator+userName+File.separator+userName+"-store.jks", userName+"store");
 
 
         return certDetails.checkCertificate();

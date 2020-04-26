@@ -1,8 +1,10 @@
 package cryptographyServices;
 
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Base64;
 import javax.crypto.*;
 
 public class SymmetricAlgorithms {
@@ -35,23 +37,28 @@ public class SymmetricAlgorithms {
         KeyGenerator keygen = KeyGenerator.getInstance(symmetricAlgorithm);
         symmetricKey = keygen.generateKey();
     }
-
-    public byte[] symmetricEncrypt(byte[] input) throws NoSuchAlgorithmException, NoSuchPaddingException,
+//primao je niz bajtova i vrcao niz bajtova
+    public String symmetricEncrypt(String plainText) throws NoSuchAlgorithmException, NoSuchPaddingException,
             InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         byte output[] = null;
         Cipher cipher = Cipher.getInstance(symmetricAlgorithm);
         cipher.init(Cipher.ENCRYPT_MODE, symmetricKey);
-        output = cipher.doFinal(input);
-        return output;
+        //output = cipher.doFinal(input);
+        output = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
+        //return output;
+        return Base64.getEncoder().encodeToString(output);
     }
-
-    public byte[] symmetricDecrypt(byte[] input) throws NoSuchAlgorithmException, NoSuchPaddingException,
+//primao i vracao niz bajtova
+    public String symmetricDecrypt(String cipherText ) throws NoSuchAlgorithmException, NoSuchPaddingException,
             InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-        byte output[] = null;
+
+        byte[] bytes = Base64.getDecoder().decode(cipherText);
+        //byte output[] = null;
         Cipher cipher = Cipher.getInstance(symmetricAlgorithm);
         cipher.init(Cipher.DECRYPT_MODE, symmetricKey);
-        output = cipher.doFinal(input);
-        return output;
+        //output = cipher.doFinal(input);
+        //return output;
+        return new String(cipher.doFinal(bytes),StandardCharsets.UTF_8);
     }
 
     public SecretKey getSymmetricKey() {

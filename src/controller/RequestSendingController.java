@@ -15,6 +15,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.security.PublicKey;
 import java.util.Base64;
 import java.util.ResourceBundle;
@@ -79,9 +81,11 @@ public class RequestSendingController implements Initializable {
 
 
         try {
-            BufferedWriter out = new BufferedWriter(new FileWriter(user.getInboxDirectory() + File.separator + HomeScreenController.user.getName() + ".txt"));
-            out.write(HomeScreenController.user.getName() + ":request#"+img.toString());
-            out.close();
+            //BufferedWriter out = new BufferedWriter(new FileWriter(user.getInboxDirectory() + File.separator + HomeScreenController.user.getName() + ".txt"));
+            //out.write(HomeScreenController.user.getName() + ":request#"+img.toString());
+           // out.close();
+            byte[]toWrite=(HomeScreenController.user.getName() + ":request#"+img.toString()).getBytes(StandardCharsets.UTF_8);
+            Files.write(new File(user.getInboxDirectory() + File.separator + HomeScreenController.user.getName() + ".txt").toPath(),toWrite);
 
 
         } catch (Exception e) {

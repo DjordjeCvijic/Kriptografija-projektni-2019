@@ -90,10 +90,12 @@ public class UserInboxListener extends Thread {
         if (kind.equals(StandardWatchEventKinds.ENTRY_CREATE)) {
             Path entryCreated = (Path) event.context();
             try{
-                BufferedReader in=new BufferedReader(new FileReader(directoryPath.toString()+File.separator+entryCreated));
-                String tmp=in.readLine();
+                //BufferedReader in=new BufferedReader(new FileReader(directoryPath.toString()+File.separator+entryCreated));
+                //String tmp=in.readLine();
+                byte[] messageInB = Files.readAllBytes(new File(directoryPath.toString()+File.separator+entryCreated).toPath());
+                String tmp=new String(messageInB);
 
-                //System.out.println(directoryPath+" u lisineru poruka     "+tmp);
+                System.out.println(directoryPath+" u lisineru poruka     "+tmp);
                 if(tmp.contains("request")) {
                     HomeScreenController.request(tmp);
                 }else if(tmp.contains(":reply=yes")){
@@ -101,7 +103,6 @@ public class UserInboxListener extends Thread {
                 }else{
                     HomeScreenController.messageHasBeenRead(tmp);
                 }
-                in.close();
 
                 PrintWriter out=new PrintWriter(new BufferedWriter(new FileWriter(directoryPath.toString()+File.separator+entryCreated)));
                 out.close();
