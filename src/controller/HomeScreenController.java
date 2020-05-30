@@ -63,16 +63,16 @@ public class HomeScreenController extends Thread implements Initializable {
 
     public static void setSymmetricKey(String message) {
         int index = message.indexOf('#');
-        String pathToImg=message.substring(index+1,message.length());
-        String digitalEnvelop =Steganography.decode(new File(pathToImg));
+        String pathToImg = message.substring(index + 1, message.length());
+        String digitalEnvelop = Steganography.decode(new File(pathToImg));
 
-        CertificateDetails cd= CertificateUtil.getCertificateDetails("src" + File.separator + "resources" + File.separator + "user_accounts" +
-                File.separator + user.getName() + File.separator + user.getName() + "-store.jks",user.getName()+"store");
-        PrivateKey privateKey=cd.getPrivateKey();
-        String keyInString="";
-        try{
-            keyInString=RSA.decrypt(digitalEnvelop,privateKey);
-        }catch (Exception e){
+        CertificateDetails cd = CertificateUtil.getCertificateDetails("src" + File.separator + "resources" + File.separator + "user_accounts" +
+                File.separator + user.getName() + File.separator + user.getName() + "-store.jks", user.getName() + "store");
+        PrivateKey privateKey = cd.getPrivateKey();
+        String keyInString = "";
+        try {
+            keyInString = RSA.decrypt(digitalEnvelop, privateKey);
+        } catch (Exception e) {
             e.printStackTrace();
         }
         byte[] decodedKey = Base64.getDecoder().decode(keyInString);
@@ -88,8 +88,8 @@ public class HomeScreenController extends Thread implements Initializable {
 
 
             user = new User(LoginController.userName, new File("src" + File.separator + "resources" + File.separator + "inboxes" + File.separator + LoginController.userName + "_inbox"));
-            user.setKeyStorePath("src"+File.separator+"resources"+File.separator+"user_accounts"+File.separator+user.getName()+File.separator+user.getName()+"-store.jks");
-            user.setTrustStorePath("src"+File.separator+"resources"+File.separator+"user_accounts"+File.separator+user.getName()+File.separator+"trustStore.jks");
+            user.setKeyStorePath("src" + File.separator + "resources" + File.separator + "user_accounts" + File.separator + user.getName() + File.separator + user.getName() + "-store.jks");
+            user.setTrustStorePath("src" + File.separator + "resources" + File.separator + "user_accounts" + File.separator + user.getName() + File.separator + "trustStore.jks");
             Image image1 = new Image(new FileInputStream("src" + File.separator + "resources" + File.separator + "homeScreenIcon.png"));
             userImage.setImage(image1);
             usernameLabel.setText(user.getName());
@@ -206,22 +206,33 @@ public class HomeScreenController extends Thread implements Initializable {
     }
 
     public void onClickSendAMessageBtn(ActionEvent actionEvent) {
+        String chosenName =null;
+        try{
+            chosenName = activeUsersBox.getSelectionModel().getSelectedItem().toString();
+        }catch(Exception e){}
+
+
         try {
 
-            String chosenName = activeUsersBox.getSelectionModel().getSelectedItem().toString();
-            requestToConnection = new User(chosenName, new File("src" + File.separator + "resources" + File.separator + "inboxes" + File.separator + chosenName + "_inbox"));
-            requestToConnection.setTrustStorePath("src"+File.separator+"resources"+File.separator+"user_accounts"+File.separator+chosenName+File.separator+"trustStore.jks");
-            requestToConnection.setKeyStorePath("src"+File.separator+"resources"+File.separator+"user_accounts"+File.separator+chosenName+File.separator+chosenName+"-store.jks");
-            Stage stage = new Stage();
-            Parent root = FXMLLoader.load(getClass().getResource("../view/requestSending.fxml"));
-            stage.setTitle(user.getName() + " sending a chat request");
-            stage.setScene(new Scene(root));
-            stage.show();
+            if (chosenName!=null) {
+                requestToConnection = new User(chosenName, new File("src" + File.separator + "resources" + File.separator + "inboxes" + File.separator + chosenName + "_inbox"));
+                requestToConnection.setTrustStorePath("src" + File.separator + "resources" + File.separator + "user_accounts" + File.separator + chosenName + File.separator + "trustStore.jks");
+                requestToConnection.setKeyStorePath("src" + File.separator + "resources" + File.separator + "user_accounts" + File.separator + chosenName + File.separator + chosenName + "-store.jks");
+                Stage stage = new Stage();
+                Parent root = FXMLLoader.load(getClass().getResource("../view/requestSending.fxml"));
+                stage.setTitle(user.getName() + " sending a chat request");
+                stage.setScene(new Scene(root));
+                stage.show();
+            }else{
+                warningWindows("Please choose the participant.");
+
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    public static void request(String message){
+
+    public static void request(String message) {
         int index = message.indexOf(':');
         String name = message.substring(0, index);
         requestToConnection = new User(name, new File("src" + File.separator + "resources" + File.separator + "inboxes" + File.separator + name + "_inbox"));
@@ -229,19 +240,17 @@ public class HomeScreenController extends Thread implements Initializable {
         setSymmetricKey(message);
 
 
-
-
         try {
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
-                    try{
+                    try {
                         Stage stage = new Stage();
                         Parent root = FXMLLoader.load(getClass().getResource("../view/requestReceivedScreen.fxml"));
                         stage.setTitle(user.getName() + " received a chat request");
                         stage.setScene(new Scene(root));
                         stage.show();
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -252,8 +261,9 @@ public class HomeScreenController extends Thread implements Initializable {
         }
 
     }
-    public static void replyIsYes(){
-        usersInConnection=requestToConnection;
+
+    public static void replyIsYes() {
+        usersInConnection = requestToConnection;
 
 
         Platform.runLater(new Runnable() {
@@ -262,7 +272,7 @@ public class HomeScreenController extends Thread implements Initializable {
                 try {
                     Stage stage = new Stage();
                     Parent root = FXMLLoader.load(getClass().getResource("../view/chatScreen.fxml"));
-                    stage.setTitle(user.getName() + " in connection with "+usersInConnection.getName());
+                    stage.setTitle(user.getName() + " in connection with " + usersInConnection.getName());
                     stage.setScene(new Scene(root));
                     stage.show();
                 } catch (Exception e) {
@@ -276,33 +286,29 @@ public class HomeScreenController extends Thread implements Initializable {
 
     public static void messageHasBeenRead(String message) {
 
-            int index = message.indexOf(':');
-            String tmp = message.substring(index+1,message.length());
-            ChatScreenController.writeMessage(tmp);
-
-
+        int index = message.indexOf(':');
+        String tmp = message.substring(index + 1, message.length());
+        ChatScreenController.writeMessage(tmp);
 
 
     }
 
 
     public static void userSelectYes() {
-        usersInConnection=requestToConnection;
+        usersInConnection = requestToConnection;
 
 
-        try{
+        try {
             //BufferedWriter out=new BufferedWriter(new FileWriter(requestToConnection.getInboxDirectory()+File.separator+user.getName()+".txt"));
-           // out.write(user.getName()+":reply=yes");
+            // out.write(user.getName()+":reply=yes");
             //out.close();
 
-            String tmp=user.getName()+":reply=yes";
-            byte[] tmpInB=tmp.getBytes(StandardCharsets.UTF_8);
-            Files.write(new File(requestToConnection.getInboxDirectory()+File.separator+user.getName()+".txt").toPath(),tmpInB);
+            String tmp = user.getName() + ":reply=yes";
+            byte[] tmpInB = tmp.getBytes(StandardCharsets.UTF_8);
+            Files.write(new File(requestToConnection.getInboxDirectory() + File.separator + user.getName() + ".txt").toPath(), tmpInB);
 
 
-
-
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -313,7 +319,7 @@ public class HomeScreenController extends Thread implements Initializable {
                 try {
                     Stage stage = new Stage();
                     Parent root = FXMLLoader.load(getClass().getResource("../view/chatScreen.fxml"));
-                    stage.setTitle(user.getName() + " in connection with "+usersInConnection.getName());
+                    stage.setTitle(user.getName() + " in connection with " + usersInConnection.getName());
                     stage.setScene(new Scene(root));
                     stage.show();
                 } catch (Exception e) {
@@ -329,16 +335,34 @@ public class HomeScreenController extends Thread implements Initializable {
 
     public static void userSelectNo() {
 
-        try{
-            BufferedWriter out=new BufferedWriter(new FileWriter(requestToConnection.getInboxDirectory()+File.separator+user.getName()+".txt"));
-            out.write(user.getName()+":reply=no");
+        try {
+            BufferedWriter out = new BufferedWriter(new FileWriter(requestToConnection.getInboxDirectory() + File.separator + user.getName() + ".txt"));
+            out.write(user.getName() + ":reply=no");
             out.close();
 
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
+
+    }
+
+    public static void replyIsNo() {
+        warningWindows(requestToConnection.getName() + " does not want to communicate with you");
+        }
+
+    private static void warningWindows(String msg){
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Warning");
+                alert.setHeaderText(null);
+                alert.setContentText(msg);
+                alert.show();
+            }
+        });
 
     }
 }

@@ -100,7 +100,10 @@ public class UserInboxListener extends Thread {
                     HomeScreenController.request(tmp);
                 }else if(tmp.contains(":reply=yes")){
                     HomeScreenController.replyIsYes();
-                }else{
+                }else if(tmp.contains(":reply=no")){
+                    HomeScreenController.replyIsNo();
+                }
+                else{
                     HomeScreenController.messageHasBeenRead(tmp);
                 }
 

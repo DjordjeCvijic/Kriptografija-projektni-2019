@@ -101,7 +101,7 @@ public class RequestSendingController implements Initializable {
             stage.close();
             selectedFile=null;
         }else{
-            fileNotSelected("File not selected");
+            fileNotSelected("Image not selected");
 
         }
 
