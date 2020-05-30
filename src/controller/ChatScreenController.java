@@ -1,14 +1,19 @@
 package controller;
 
 import certificateServices.*;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.User;
 import cryptographyServices.SymmetricAlgorithms;
+import steganography.Steganography;
 
 import javax.crypto.SecretKey;
 import java.io.*;
@@ -32,18 +37,22 @@ public class ChatScreenController extends Thread implements Initializable {
     private TextField textField = new TextField();
     @FXML
     private TextArea textArea = new TextArea();
+    @FXML
+    private Button sendBtn = new Button();
 
     private static String message = "";
     private static Object lock1 = new Object();
-    private Boolean flagForThread = true;
+    private static boolean flagForThread = true;
     private static SecretKey symmetricKey;
     private SymmetricAlgorithms symmetricAlgorithms = new SymmetricAlgorithms();
     private File file = new File("pomoc.txt");
+    private static boolean flag = false;
 
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
+        flag = false;
+        flagForThread = true;
         textArea.setEditable(false);
 
         user = HomeScreenController.user;
@@ -103,12 +112,12 @@ public class ChatScreenController extends Thread implements Initializable {
 
             //izvlacenje privatnog kljuca
             CertificateDetails certificateDetails = CertificateUtil.getCertificateDetails(user.getKeyStorePath(), user.getName() + "store");
-            PrivateKey privateKey=certificateDetails.getPrivateKey();
+            PrivateKey privateKey = certificateDetails.getPrivateKey();
 
             //digitalno potpisivanje
             String digitalSignature = RSA.encrypt(new String(encryptedMessageDigest), privateKey);
 
-            messageToWrite += digitalSignature + "#terminate#" +encryptedMessage;
+            messageToWrite += digitalSignature + "#terminate#" + encryptedMessage;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -137,36 +146,46 @@ public class ChatScreenController extends Thread implements Initializable {
             }
             if (flagForThread) {
                 try {
-                    //razdvajanje poruke
-                    int index = message.indexOf("#terminate#");
-                    String digitalSignature = message.substring(0, index);
-                    String encryptedMessage = message.substring(index + 11, message.length());
-
-                    //izdvajanje javnog kljuca
-                    PublicKey publicKey = CertificateUtil.getPublicKey(user.getTrustStorePath(), "truststore", usersInConnection.getName() + "sertifikat");
-
-                    //dekriptovanje digitalnog potpisa
-                    String firstDigest = RSA.decrypt(digitalSignature, publicKey);
+                    if (flag) {
 
 
-                    //hesiranje enkriptovane prenesene poruke
-                    MessageDigest md = MessageDigest.getInstance("SHA-1");
-                    byte[] secondDigestInBytes = md.digest(encryptedMessage.getBytes(StandardCharsets.UTF_8));
-                    String secondDigest = new String(secondDigestInBytes);
+                        sendBtn.setVisible(false);
 
 
-                    if (!firstDigest.equals(secondDigest))
-                        throw new Exception("Hes vrijednosti nisu iste");//drugacije nazvati exception
+                    } else {
+                        //razdvajanje poruke
+                        int index = message.indexOf("#terminate#");
+                        String digitalSignature = message.substring(0, index);
+                        String encryptedMessage = message.substring(index + 11, message.length());
+
+                        //izdvajanje javnog kljuca
+                        PublicKey publicKey = CertificateUtil.getPublicKey(user.getTrustStorePath(), "truststore", usersInConnection.getName() + "sertifikat");
+
+                        //dekriptovanje digitalnog potpisa
+                        String firstDigest = RSA.decrypt(digitalSignature, publicKey);
 
 
-                    String decriyptedMessage = symmetricAlgorithms.symmetricDecrypt(encryptedMessage);
+                        //hesiranje enkriptovane prenesene poruke
+                        MessageDigest md = MessageDigest.getInstance("SHA-1");
+                        byte[] secondDigestInBytes = md.digest(encryptedMessage.getBytes(StandardCharsets.UTF_8));
+                        String secondDigest = new String(secondDigestInBytes);
 
-                    String timeStamp = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
-                    String messageTmp = usersInConnection.getName() + " [" + timeStamp + "] -> " + decriyptedMessage + "\n\r\n\r";
-                    String curent = textArea.getText();
-                    String finaleMessage = messageTmp + curent;
-                    textArea.clear();
-                    textArea.setText(finaleMessage);
+
+                        if (!firstDigest.equals(secondDigest))
+                            throw new Exception("Secure communication is compromised");
+
+
+                        String decriyptedMessage = symmetricAlgorithms.symmetricDecrypt(encryptedMessage);
+
+                        String timeStamp = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
+                        String messageTmp = usersInConnection.getName() + " [" + timeStamp + "] -> " + decriyptedMessage + "\n\r\n\r";
+                        String curent = textArea.getText();
+                        String finaleMessage = messageTmp + curent;
+                        textArea.clear();
+                        textArea.setText(finaleMessage);
+
+
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -180,7 +199,28 @@ public class ChatScreenController extends Thread implements Initializable {
         synchronized (lock1) {
             lock1.notify();
         }
+        if (!flag) {
+            FileChooser fileChooser = new FileChooser();
+            File selectedFile = fileChooser.showOpenDialog(null);
+            String endMessage = "end of communication";
+            File img = Steganography.encode(selectedFile, endMessage);
+            try {
+                byte[] toWrite = (HomeScreenController.user.getName() + ":image#" + img.toString()).getBytes(StandardCharsets.UTF_8);
+                Files.write(new File(usersInConnection.getInboxDirectory() + File.separator + user.getName() + ".txt").toPath(), toWrite);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
         Stage stage = (Stage) textArea.getScene().getWindow();
         stage.close();
+
+    }
+
+    public static void lastMessage() {
+        flag = true;
+        synchronized (lock1) {
+            lock1.notify();
+        }
     }
 }

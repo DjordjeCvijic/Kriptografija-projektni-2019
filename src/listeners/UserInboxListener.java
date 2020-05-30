@@ -96,8 +96,8 @@ public class UserInboxListener extends Thread {
                 String tmp=new String(messageInB);
 
                 System.out.println(directoryPath+" u lisineru poruka     "+tmp);
-                if(tmp.contains("request")) {
-                    HomeScreenController.request(tmp);
+                if(tmp.contains("image")) {
+                    HomeScreenController.imagePath(tmp);
                 }else if(tmp.contains(":reply=yes")){
                     HomeScreenController.replyIsYes();
                 }else if(tmp.contains(":reply=no")){

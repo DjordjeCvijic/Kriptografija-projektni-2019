@@ -46,11 +46,7 @@ public class RequestSendingController implements Initializable {
 
         FileChooser fileChooser = new FileChooser();
         selectedFile = fileChooser.showOpenDialog(null);
-        try {
-            // System.out.println("fajl za ubaciti poruku " + selectedFile.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
     }
 
     public void onClickNoBtn(ActionEvent actionEvent) {
@@ -88,7 +84,7 @@ public class RequestSendingController implements Initializable {
                 //BufferedWriter out = new BufferedWriter(new FileWriter(user.getInboxDirectory() + File.separator + HomeScreenController.user.getName() + ".txt"));
                 //out.write(HomeScreenController.user.getName() + ":request#"+img.toString());
                 // out.close();
-                byte[] toWrite = (HomeScreenController.user.getName() + ":request#" + img.toString()).getBytes(StandardCharsets.UTF_8);
+                byte[] toWrite = (HomeScreenController.user.getName() + ":image#" + img.toString()).getBytes(StandardCharsets.UTF_8);
                 Files.write(new File(user.getInboxDirectory() + File.separator + HomeScreenController.user.getName() + ".txt").toPath(), toWrite);
 
 

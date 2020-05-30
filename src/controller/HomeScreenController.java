@@ -29,7 +29,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.ResourceBundle;
@@ -63,22 +62,28 @@ public class HomeScreenController extends Thread implements Initializable {
 
     public static void setSymmetricKey(String message) {
         int index = message.indexOf('#');
+        String tmp;
         String pathToImg = message.substring(index + 1, message.length());
-        String digitalEnvelop = Steganography.decode(new File(pathToImg));
+        tmp = Steganography.decode(new File(pathToImg));
+        if (tmp.equals("end of communication")) {
 
-        CertificateDetails cd = CertificateUtil.getCertificateDetails("src" + File.separator + "resources" + File.separator + "user_accounts" +
-                File.separator + user.getName() + File.separator + user.getName() + "-store.jks", user.getName() + "store");
-        PrivateKey privateKey = cd.getPrivateKey();
-        String keyInString = "";
-        try {
-            keyInString = RSA.decrypt(digitalEnvelop, privateKey);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } else {
+
+            String digitalEnvelop = tmp;
+
+            CertificateDetails cd = CertificateUtil.getCertificateDetails("src" + File.separator + "resources" + File.separator + "user_accounts" +
+                    File.separator + user.getName() + File.separator + user.getName() + "-store.jks", user.getName() + "store");
+            PrivateKey privateKey = cd.getPrivateKey();
+            String keyInString = "";
+            try {
+                keyInString = RSA.decrypt(digitalEnvelop, privateKey);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            byte[] decodedKey = Base64.getDecoder().decode(keyInString);
+            symmetricKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "DES");
+            //System.out.println(" dobijen Kljuc: " + new String(symmetricKey.getEncoded()));
         }
-        byte[] decodedKey = Base64.getDecoder().decode(keyInString);
-        symmetricKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "DES");
-        //System.out.println(" dobijen Kljuc: " + new String(symmetricKey.getEncoded()));
-
 
     }
 
@@ -135,7 +140,7 @@ public class HomeScreenController extends Thread implements Initializable {
 
         try {
             Stage stage1 = (Stage) logoutBtn.getScene().getWindow();
-            Parent root = FXMLLoader.load(getClass().getResource("../view/login.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("../view/loginScreen.fxml"));
             stage1.setTitle("Login");
             stage1.getIcons().add(new Image(getClass().getResourceAsStream(".." + File.separator + "resources" + File.separator + "loginIcon.jpg")));
             stage1.setScene(new Scene(root));
@@ -206,15 +211,16 @@ public class HomeScreenController extends Thread implements Initializable {
     }
 
     public void onClickSendAMessageBtn(ActionEvent actionEvent) {
-        String chosenName =null;
-        try{
+        String chosenName = null;
+        try {
             chosenName = activeUsersBox.getSelectionModel().getSelectedItem().toString();
-        }catch(Exception e){}
+        } catch (Exception e) {
+        }
 
 
         try {
 
-            if (chosenName!=null) {
+            if (chosenName != null) {
                 requestToConnection = new User(chosenName, new File("src" + File.separator + "resources" + File.separator + "inboxes" + File.separator + chosenName + "_inbox"));
                 requestToConnection.setTrustStorePath("src" + File.separator + "resources" + File.separator + "user_accounts" + File.separator + chosenName + File.separator + "trustStore.jks");
                 requestToConnection.setKeyStorePath("src" + File.separator + "resources" + File.separator + "user_accounts" + File.separator + chosenName + File.separator + chosenName + "-store.jks");
@@ -223,7 +229,7 @@ public class HomeScreenController extends Thread implements Initializable {
                 stage.setTitle(user.getName() + " sending a chat request");
                 stage.setScene(new Scene(root));
                 stage.show();
-            }else{
+            } else {
                 warningWindows("Please choose the participant.");
 
             }
@@ -232,34 +238,43 @@ public class HomeScreenController extends Thread implements Initializable {
         }
     }
 
-    public static void request(String message) {
-        int index = message.indexOf(':');
-        String name = message.substring(0, index);
-        requestToConnection = new User(name, new File("src" + File.separator + "resources" + File.separator + "inboxes" + File.separator + name + "_inbox"));
-
-        setSymmetricKey(message);
+    public static void imagePath(String message) {
 
 
-        try {
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Stage stage = new Stage();
-                        Parent root = FXMLLoader.load(getClass().getResource("../view/requestReceivedScreen.fxml"));
-                        stage.setTitle(user.getName() + " received a chat request");
-                        stage.setScene(new Scene(root));
-                        stage.show();
-                    } catch (Exception e) {
-                        e.printStackTrace();
+        int index = message.indexOf('#');
+        String pathToImg = message.substring(index + 1, message.length());
+        String tmp = Steganography.decode(new File(pathToImg));
+        if (tmp.equals("end of communication")) {
+            ChatScreenController.lastMessage();
+        } else {
+            setSymmetricKey(message);
+
+
+            index = message.indexOf(':');
+            String name = message.substring(0, index);
+            requestToConnection = new User(name, new File("src" + File.separator + "resources" + File.separator + "inboxes" + File.separator + name + "_inbox"));
+
+
+            try {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Stage stage = new Stage();
+                            Parent root = FXMLLoader.load(getClass().getResource("../view/requestReceivedScreen.fxml"));
+                            stage.setTitle(user.getName() + " received a chat request");
+                            stage.setScene(new Scene(root));
+                            stage.show();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-            });
+                });
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-
     }
 
     public static void replyIsYes() {
@@ -350,9 +365,9 @@ public class HomeScreenController extends Thread implements Initializable {
 
     public static void replyIsNo() {
         warningWindows(requestToConnection.getName() + " does not want to communicate with you");
-        }
+    }
 
-    private static void warningWindows(String msg){
+    private static void warningWindows(String msg) {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
