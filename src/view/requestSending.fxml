@@ -5,17 +5,16 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-
 <AnchorPane prefHeight="338.0" prefWidth="435.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.RequestSendingController">
    <children>
-      <Label layoutX="69.0" layoutY="37.0" text="Path to the image:">
+      <Label layoutX="71.0" layoutY="54.0" text="Path to the image:">
          <font>
             <Font size="18.0" />
          </font>
       </Label>
       <Label fx:id="qLabel" layoutX="3.0" layoutY="186.0" prefHeight="18.0" prefWidth="402.0" />
-      <Button fx:id="imageBtn" layoutX="71.0" layoutY="64.0" mnemonicParsing="false" onAction="#onClickImageBtn" text="Select a image" />
-      <Button fx:id="noBtn" layoutX="232.0" layoutY="247.0" mnemonicParsing="false" onAction="#onClickNoBtn" prefHeight="44.0" prefWidth="118.0" text="NO" />
-      <Button fx:id="yesBtn" layoutX="71.0" layoutY="247.0" mnemonicParsing="false" onAction="#onClickYesBtn" prefHeight="44.0" prefWidth="117.0" text="YES" />
+      <Button fx:id="imageBtn" layoutX="71.0" layoutY="100.0" mnemonicParsing="false" onAction="#onClickImageBtn" text="Select a image" />
+      <Button fx:id="noBtn" layoutX="218.0" layoutY="225.0" mnemonicParsing="false" onAction="#onClickNoBtn" prefHeight="44.0" prefWidth="118.0" text="NO" />
+      <Button fx:id="yesBtn" layoutX="71.0" layoutY="225.0" mnemonicParsing="false" onAction="#onClickYesBtn" prefHeight="44.0" prefWidth="117.0" text="YES" />
    </children>
 </AnchorPane>

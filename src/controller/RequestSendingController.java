@@ -2,9 +2,11 @@ package controller;
 
 import certificateServices.CertificateUtil;
 import certificateServices.RSA;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.FileChooser;
@@ -32,7 +34,7 @@ public class RequestSendingController implements Initializable {
     @FXML
     private Button noBtn;
 
-    private File selectedFile;
+    private File selectedFile = null;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -45,7 +47,7 @@ public class RequestSendingController implements Initializable {
         FileChooser fileChooser = new FileChooser();
         selectedFile = fileChooser.showOpenDialog(null);
         try {
-           // System.out.println("fajl za ubaciti poruku " + selectedFile.toString());
+            // System.out.println("fajl za ubaciti poruku " + selectedFile.toString());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -58,43 +60,66 @@ public class RequestSendingController implements Initializable {
     }
 
     public void onClickYesBtn(ActionEvent actionEvent) {
-        User user = HomeScreenController.requestToConnection;
-        String digitalEnvelop="";
 
-        SymmetricAlgorithms sa = new SymmetricAlgorithms();
-        try {
-            sa.generateSymmetricKey();
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (selectedFile != null) {
+            User user = HomeScreenController.requestToConnection;
+            String digitalEnvelop = "";
+
+            SymmetricAlgorithms sa = new SymmetricAlgorithms();
+            try {
+                sa.generateSymmetricKey();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            //System.out.println("poslan Kljuc: " + new String(sa.getSymmetricKey().getEncoded()));
+            try {
+                HomeScreenController.symmetricKey = sa.getSymmetricKey();
+                String key = Base64.getEncoder().encodeToString(sa.getSymmetricKey().getEncoded());
+                PublicKey publicKey = CertificateUtil.getPublicKey(HomeScreenController.user.getTrustStorePath(), "truststore", user.getName() + "sertifikat");
+
+                digitalEnvelop = RSA.encrypt(key, publicKey);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            File img = Steganography.encode(selectedFile, digitalEnvelop);
+
+
+            try {
+                //BufferedWriter out = new BufferedWriter(new FileWriter(user.getInboxDirectory() + File.separator + HomeScreenController.user.getName() + ".txt"));
+                //out.write(HomeScreenController.user.getName() + ":request#"+img.toString());
+                // out.close();
+                byte[] toWrite = (HomeScreenController.user.getName() + ":request#" + img.toString()).getBytes(StandardCharsets.UTF_8);
+                Files.write(new File(user.getInboxDirectory() + File.separator + HomeScreenController.user.getName() + ".txt").toPath(), toWrite);
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+            Stage stage = (Stage) noBtn.getScene().getWindow();
+            stage.close();
+            selectedFile=null;
+        }else{
+            fileNotSelected("File not selected");
+
         }
-        //System.out.println("poslan Kljuc: " + new String(sa.getSymmetricKey().getEncoded()));
-        try {
-        HomeScreenController.symmetricKey=sa.getSymmetricKey();
-        String key = Base64.getEncoder().encodeToString(sa.getSymmetricKey().getEncoded());
-        PublicKey publicKey = CertificateUtil.getPublicKey(HomeScreenController.user.getTrustStorePath(),"truststore",user.getName()+"sertifikat");
-
-            digitalEnvelop = RSA.encrypt(key, publicKey);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        File img=Steganography.encode(selectedFile,digitalEnvelop);
 
 
-        try {
-            //BufferedWriter out = new BufferedWriter(new FileWriter(user.getInboxDirectory() + File.separator + HomeScreenController.user.getName() + ".txt"));
-            //out.write(HomeScreenController.user.getName() + ":request#"+img.toString());
-           // out.close();
-            byte[]toWrite=(HomeScreenController.user.getName() + ":request#"+img.toString()).getBytes(StandardCharsets.UTF_8);
-            Files.write(new File(user.getInboxDirectory() + File.separator + HomeScreenController.user.getName() + ".txt").toPath(),toWrite);
+    }
 
+    private void fileNotSelected(String message) {
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-        Stage stage = (Stage) noBtn.getScene().getWindow();
-        stage.close();
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Warning");
+                alert.setHeaderText(null);
+                alert.setContentText(message);
+                alert.show();
+            }
+        });
 
 
     }
