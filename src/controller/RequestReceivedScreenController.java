@@ -20,18 +20,14 @@ public class RequestReceivedScreenController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        messageLabel.setText("Do you want to start a conversation with "+ HomeScreenController.requestToConnection.getName());
+        messageLabel.setText("Do you want to start a conversation with " + HomeScreenController.requestToConnection.getName());
 
     }
 
-
     public void onClickYesBtn(ActionEvent actionEvent) {
-
         HomeScreenController.userSelectYes();
         Stage stage = (Stage) yesBtn.getScene().getWindow();
         stage.close();
-
-
     }
 
     public void onClickNoBtn(ActionEvent actionEvent) {
@@ -39,8 +35,6 @@ public class RequestReceivedScreenController implements Initializable {
         Stage stage = (Stage) yesBtn.getScene().getWindow();
         stage.close();
     }
-
-
 
 
 }

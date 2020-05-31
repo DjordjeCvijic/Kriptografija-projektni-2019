@@ -14,10 +14,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        //ImageWorker iw=new ImageWorker("src"+ File.separator+"resources"+File.separator+"loginIcon.jpg");
-        //iw.worker();
 
-       // primaryStage.initStyle(StageStyle.UNIFIED);
         Parent root = FXMLLoader.load(getClass().getResource("../view/loginScreen.fxml"));
         primaryStage.setTitle("Login");
         primaryStage.getIcons().add(new Image(getClass().getResourceAsStream(".."+ File.separator+"resources"+File.separator+"loginIcon.jpg")));

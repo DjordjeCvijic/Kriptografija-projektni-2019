@@ -15,11 +15,10 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
-import listeners.JavaInboxesListener;
+import listeners.ActiveUsersListener;
 import listeners.UserInboxListener;
 import model.User;
 import steganography.Steganography;
-
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.BufferedWriter;
@@ -48,84 +47,66 @@ public class HomeScreenController extends Thread implements Initializable {
     private Label numberLabel;
 
 
-    public static ArrayList<String> activeUsers = new ArrayList<>();
+    private static ArrayList<String> activeUsers = new ArrayList<>();
     private int numOfActiveUsers = 0;
     public static User user;
-    private static Object lock = new Object();
+    private final static Object lock = new Object();
     public static User usersInConnection = null;
     public static User requestToConnection;
-    private static JavaInboxesListener listener = null;
+    private static ActiveUsersListener listener = null;
     private static UserInboxListener userInboxListener = null;
-    public String selectedUser = null;
     public static SecretKey symmetricKey;
-
     private Boolean flag = true;
 
-    public static void setSymmetricKey(String message) {
+    private static void setSymmetricKey(String message) {
         int index = message.indexOf('#');
-        String tmp;
         String pathToImg = message.substring(index + 1, message.length());
-        tmp = Steganography.decode(new File(pathToImg));
-        if (tmp.equals("end of communication")) {
+        String digitalEnvelop = Steganography.decode(new File(pathToImg));
 
-        } else {
-
-            String digitalEnvelop = tmp;
-
-            CertificateDetails cd = CertificateUtil.getCertificateDetails("src" + File.separator + "resources" + File.separator + "user_accounts" +
-                    File.separator + user.getName() + File.separator + user.getName() + "-store.jks", user.getName() + "store");
-            PrivateKey privateKey = cd.getPrivateKey();
-            String keyInString = "";
-            try {
-                keyInString = RSA.decrypt(digitalEnvelop, privateKey);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            byte[] decodedKey = Base64.getDecoder().decode(keyInString);
-            String symmetricAlgorithm= GetConfigPropertyValues.getPropValue("symmetric_algorithm");
-            symmetricKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, symmetricAlgorithm);
-            System.out.println("kljuc u home "+symmetricKey);
-            //System.out.println(" dobijen Kljuc: " + new String(symmetricKey.getEncoded()));
+        CertificateDetails cd = CertificateUtil.getCertificateDetails("src" + File.separator + "resources" + File.separator + "user_accounts" +
+                File.separator + user.getName() + File.separator + user.getName() + "-store.jks", user.getName() + "store");
+        PrivateKey privateKey = cd.getPrivateKey();
+        String keyInString = "";
+        try {
+            keyInString = RSA.decrypt(digitalEnvelop, privateKey);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        byte[] decodedKey = Base64.getDecoder().decode(keyInString);
+
+        String symmetricAlgorithm = GetConfigPropertyValues.getPropValue("symmetric_algorithm");
+        symmetricKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, symmetricAlgorithm);
 
     }
+
 
     public void initialize(URL location, ResourceBundle resources) {
 
         try {
-
-
             user = new User(LoginController.userName, new File("src" + File.separator + "resources" + File.separator + "inboxes" + File.separator + LoginController.userName + "_inbox"));
             user.setKeyStorePath("src" + File.separator + "resources" + File.separator + "user_accounts" + File.separator + user.getName() + File.separator + user.getName() + "-store.jks");
             user.setTrustStorePath("src" + File.separator + "resources" + File.separator + "user_accounts" + File.separator + user.getName() + File.separator + "trustStore.jks");
             Image image1 = new Image(new FileInputStream("src" + File.separator + "resources" + File.separator + "homeScreenIcon.png"));
             userImage.setImage(image1);
             usernameLabel.setText(user.getName());
-
-
             activeUsers.clear();
+            File[] listFiles = new File("src" + File.separator + "resources" + File.separator + "inboxes").listFiles();
 
-
-            File[] tmp = new File("src" + File.separator + "resources" + File.separator + "inboxes").listFiles();
-            for (int i = 0; i < tmp.length; i++) {
-                if (!tmp[i].getName().startsWith(user.getName())) {
-                    int index = tmp[i].getName().indexOf('_');
-                    activeUsers.add(tmp[i].getName().substring(0, index));
-
+            for (int i = 0; i < listFiles.length; i++) {
+                if (!listFiles[i].getName().startsWith(user.getName())) {
+                    int index = listFiles[i].getName().indexOf('_');
+                    activeUsers.add(listFiles[i].getName().substring(0, index));
                 }
             }
 
-
             activeUsersBox.getItems().clear();
-
 
             for (String s : activeUsers)
                 activeUsersBox.getItems().add(s);
             numOfActiveUsers = activeUsers.size();
             numberLabel.setText(Integer.toString(numOfActiveUsers));
 
-
-            listener = new JavaInboxesListener(user.getName());
+            listener = new ActiveUsersListener(user.getName());
             listener.start();
             userInboxListener = new UserInboxListener(user.getInboxDirectory());
             userInboxListener.start();
@@ -140,7 +121,6 @@ public class HomeScreenController extends Thread implements Initializable {
     public void onClickLogoutBtn(ActionEvent actionEvent) {
         listener.setRunning(false);
         userInboxListener.setRunning(false);
-
         try {
             Stage stage1 = (Stage) logoutBtn.getScene().getWindow();
             Parent root = FXMLLoader.load(getClass().getResource("../view/loginScreen.fxml"));
@@ -149,7 +129,6 @@ public class HomeScreenController extends Thread implements Initializable {
             stage1.setScene(new Scene(root));
 
             user.deleteUserData();
-            //usersInConnection.clear();
             flag = false;
             synchronized (lock) {
                 lock.notify();
@@ -159,8 +138,6 @@ public class HomeScreenController extends Thread implements Initializable {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
 
 
@@ -169,8 +146,6 @@ public class HomeScreenController extends Thread implements Initializable {
             activeUsers.add(name);
             lock.notify();
         }
-
-
     }
 
     public static void removeActiveUser(String name) {
@@ -201,16 +176,10 @@ public class HomeScreenController extends Thread implements Initializable {
 
                         numOfActiveUsers = activeUsers.size();
                         numberLabel.setText(Integer.toString(numOfActiveUsers));
-
-
                     }
                 });
-
-
             }
         }
-
-
     }
 
     public void onClickSendAMessageBtn(ActionEvent actionEvent) {
@@ -220,9 +189,7 @@ public class HomeScreenController extends Thread implements Initializable {
         } catch (Exception e) {
         }
 
-
         try {
-
             if (chosenName != null) {
                 requestToConnection = new User(chosenName, new File("src" + File.separator + "resources" + File.separator + "inboxes" + File.separator + chosenName + "_inbox"));
                 requestToConnection.setTrustStorePath("src" + File.separator + "resources" + File.separator + "user_accounts" + File.separator + chosenName + File.separator + "trustStore.jks");
@@ -234,7 +201,6 @@ public class HomeScreenController extends Thread implements Initializable {
                 stage.show();
             } else {
                 warningWindows("Please choose the participant.");
-
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -242,8 +208,6 @@ public class HomeScreenController extends Thread implements Initializable {
     }
 
     public static void imagePath(String message) {
-
-
         int index = message.indexOf('#');
         String pathToImg = message.substring(index + 1, message.length());
         String tmp = Steganography.decode(new File(pathToImg));
@@ -251,13 +215,9 @@ public class HomeScreenController extends Thread implements Initializable {
             ChatScreenController.lastMessage();
         } else {
             setSymmetricKey(message);
-
-
             index = message.indexOf(':');
             String name = message.substring(0, index);
             requestToConnection = new User(name, new File("src" + File.separator + "resources" + File.separator + "inboxes" + File.separator + name + "_inbox"));
-
-
             try {
                 Platform.runLater(new Runnable() {
                     @Override
@@ -282,8 +242,6 @@ public class HomeScreenController extends Thread implements Initializable {
 
     public static void replyIsYes() {
         usersInConnection = requestToConnection;
-
-
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
@@ -303,29 +261,18 @@ public class HomeScreenController extends Thread implements Initializable {
     }
 
     public static void messageHasBeenRead(String message) {
-
         int index = message.indexOf(':');
         String tmp = message.substring(index + 1, message.length());
         ChatScreenController.writeMessage(tmp);
-
-
     }
 
 
     public static void userSelectYes() {
         usersInConnection = requestToConnection;
-
-
         try {
-            //BufferedWriter out=new BufferedWriter(new FileWriter(requestToConnection.getInboxDirectory()+File.separator+user.getName()+".txt"));
-            // out.write(user.getName()+":reply=yes");
-            //out.close();
-
             String tmp = user.getName() + ":reply=yes";
             byte[] tmpInB = tmp.getBytes(StandardCharsets.UTF_8);
             Files.write(new File(requestToConnection.getInboxDirectory() + File.separator + user.getName() + ".txt").toPath(), tmpInB);
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -346,8 +293,6 @@ public class HomeScreenController extends Thread implements Initializable {
 
             }
         });
-
-
     }
 
 
@@ -357,8 +302,6 @@ public class HomeScreenController extends Thread implements Initializable {
             BufferedWriter out = new BufferedWriter(new FileWriter(requestToConnection.getInboxDirectory() + File.separator + user.getName() + ".txt"));
             out.write(user.getName() + ":reply=no");
             out.close();
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }

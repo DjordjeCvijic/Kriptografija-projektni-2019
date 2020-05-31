@@ -13,9 +13,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.User;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -42,15 +40,12 @@ public class RequestSendingController implements Initializable {
     }
 
     public void onClickImageBtn(ActionEvent actionEvent) {
-
-
         FileChooser fileChooser = new FileChooser();
         selectedFile = fileChooser.showOpenDialog(null);
 
     }
 
     public void onClickNoBtn(ActionEvent actionEvent) {
-
         Stage stage = (Stage) noBtn.getScene().getWindow();
         stage.close();
     }
@@ -67,10 +62,8 @@ public class RequestSendingController implements Initializable {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            //System.out.println("poslan Kljuc: " + new String(sa.getSymmetricKey().getEncoded()));
             try {
                 HomeScreenController.symmetricKey = sa.getSymmetricKey();
-                System.out.println("u zahtjevui klkuc "+sa.getSymmetricKey());
                 String key = Base64.getEncoder().encodeToString(sa.getSymmetricKey().getEncoded());
                 PublicKey publicKey = CertificateUtil.getPublicKey(HomeScreenController.user.getTrustStorePath(), "truststore", user.getName() + "sertifikat");
 
@@ -80,33 +73,22 @@ public class RequestSendingController implements Initializable {
             }
             File img = Steganography.encode(selectedFile, digitalEnvelop);
 
-
             try {
-                //BufferedWriter out = new BufferedWriter(new FileWriter(user.getInboxDirectory() + File.separator + HomeScreenController.user.getName() + ".txt"));
-                //out.write(HomeScreenController.user.getName() + ":request#"+img.toString());
-                // out.close();
                 byte[] toWrite = (HomeScreenController.user.getName() + ":image#" + img.toString()).getBytes(StandardCharsets.UTF_8);
                 Files.write(new File(user.getInboxDirectory() + File.separator + HomeScreenController.user.getName() + ".txt").toPath(), toWrite);
-
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-
             Stage stage = (Stage) noBtn.getScene().getWindow();
             stage.close();
-            selectedFile=null;
-        }else{
+            selectedFile = null;
+        } else {
             fileNotSelected("Image not selected");
 
         }
-
-
     }
 
     private void fileNotSelected(String message) {
-
         Platform.runLater(new Runnable() {
             @Override
             public void run() {

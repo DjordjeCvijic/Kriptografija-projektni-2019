@@ -8,9 +8,6 @@ import java.util.Properties;
 
 public class GetConfigPropertyValues {
 
-
-
-
     public static String getPropValue(String propertyName) {
         String result = "";
         try {

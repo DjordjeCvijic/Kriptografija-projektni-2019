@@ -2,11 +2,9 @@ package controller;
 
 import certificateServices.*;
 import get_properties.GetConfigPropertyValues;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -25,14 +23,11 @@ import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.text.SimpleDateFormat;
-import java.util.Base64;
 import java.util.Calendar;
 import java.util.ResourceBundle;
 
 public class ChatScreenController extends Thread implements Initializable {
 
-    public User user;
-    public static User usersInConnection;
 
     @FXML
     private TextField textField = new TextField();
@@ -41,14 +36,15 @@ public class ChatScreenController extends Thread implements Initializable {
     @FXML
     private Button sendBtn = new Button();
 
+    private User user;
+    private static User usersInConnection;
     private static String message = "";
-    private static Object lock1 = new Object();
+    private final static Object lock1 = new Object();
     private static boolean flagForThread = true;
     private static SecretKey symmetricKey;
     private SymmetricAlgorithms symmetricAlgorithms = new SymmetricAlgorithms();
-    private File file = new File("pomoc.txt");
     private static boolean flag = false;
-    private MessageDigest md ;
+    private MessageDigest md;
 
 
     @Override
@@ -56,17 +52,14 @@ public class ChatScreenController extends Thread implements Initializable {
         flag = false;
         flagForThread = true;
         textArea.setEditable(false);
-
-
         user = HomeScreenController.user;
         usersInConnection = HomeScreenController.usersInConnection;
         symmetricKey = HomeScreenController.symmetricKey;
-
         symmetricAlgorithms.setSymmetricKey(symmetricKey);
 
-        try{
+        try {
             md = MessageDigest.getInstance(GetConfigPropertyValues.getPropValue("message_digest"));
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -80,17 +73,13 @@ public class ChatScreenController extends Thread implements Initializable {
         String firstMessage = textField.getText();
         String timeStamp = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
         String message = "me[" + timeStamp + "] -> " + firstMessage + "\n\r\n\r";
-        String curent = textArea.getText();
-        String finaleMessage = message + curent;
+        String currently = textArea.getText();
+        String finaleMessage = message + currently;
         textArea.clear();
         textArea.setText(finaleMessage);
         textField.clear();
         try {
             String messageToWrite = makeMessageToWrite(firstMessage);
-
-            //PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(usersInConnection.getInboxDirectory() + File.separator + user.getName() + ".txt")));
-            //out.println(user.getName() + ":" + messageToWrite);
-            //out.close();
             byte[] messageToWriteInB = (user.getName() + ":" + messageToWrite).getBytes(StandardCharsets.UTF_8);
             Files.write(new File(usersInConnection.getInboxDirectory() + File.separator + user.getName() + ".txt").toPath(), messageToWriteInB);
 
@@ -99,24 +88,15 @@ public class ChatScreenController extends Thread implements Initializable {
         }
     }
 
-    private String metoda(byte[] bytes) {
-        String tmp = " ";
-        for (byte b : bytes)
-            tmp += b;
-        return tmp;
-    }
 
     private String makeMessageToWrite(String firstMessage) {
         String messageToWrite = "";
         try {
 
-            //String encryptedMessageInBytes =symmetricAlgorithms.symmetricEncrypt(firstMessage);
-
             //enkripcija poruke
             String encryptedMessage = symmetricAlgorithms.symmetricEncrypt(firstMessage);
 
             //hesiranje poruke
-
             byte[] encryptedMessageDigest = md.digest(encryptedMessage.getBytes(StandardCharsets.UTF_8));
 
             //izvlacenje privatnog kljuca
@@ -200,7 +180,6 @@ public class ChatScreenController extends Thread implements Initializable {
                 }
             }
         }
-        // System.out.println("tred u cetu zavrsio");
     }
 
     public void onCloseBtnClick(ActionEvent actionEvent) {

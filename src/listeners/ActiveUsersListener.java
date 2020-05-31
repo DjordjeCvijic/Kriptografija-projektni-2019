@@ -4,24 +4,14 @@ package listeners;
 import java.io.File;
 import java.nio.file.*;
 import java.nio.file.WatchEvent.Kind;
-import java.util.logging.Level;
 
 import controller.HomeScreenController;
 
-public class JavaInboxesListener extends Thread {
+public class ActiveUsersListener extends Thread {
 
     private Path directoryPath = (new File("src" + File.separator + "resources" + File.separator + "inboxes")).toPath();
     private String userName;
     private boolean running = false;
-
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
 
     public boolean isRunning() {
         return running;
@@ -31,8 +21,7 @@ public class JavaInboxesListener extends Thread {
         this.running = running;
     }
 
-    public JavaInboxesListener(String name) {
-
+    public ActiveUsersListener(String name) {
         userName = name;
     }
 
@@ -40,36 +29,23 @@ public class JavaInboxesListener extends Thread {
     public void run() {
         try {
             setRunning(true);
-
             WatchService watchService = directoryPath.getFileSystem().newWatchService();
             directoryPath.register(watchService, StandardWatchEventKinds.ENTRY_CREATE,
                     StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);
 
 
             while (isRunning()) {
-
                 WatchKey watchKey = watchService.take();
-
-
                 for (final WatchEvent<?> event : watchKey.pollEvents()) {
-                    //Calling method
                     takeActionOnChangeEvent(event);
                 }
 
-                //Break out of the loop if watch directory got deleted
                 if (!watchKey.reset()) {
                     watchKey.cancel();
                     watchService.close();
-                    //Break out from the loop
                     break;
                 }
             }
-           // System.out.println(" java zavrsio");
-
-
-        } catch (InterruptedException e) {
-
-            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
