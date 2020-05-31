@@ -1,6 +1,7 @@
 package controller;
 
 import certificateServices.*;
+import get_properties.GetConfigPropertyValues;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -47,6 +48,7 @@ public class ChatScreenController extends Thread implements Initializable {
     private SymmetricAlgorithms symmetricAlgorithms = new SymmetricAlgorithms();
     private File file = new File("pomoc.txt");
     private static boolean flag = false;
+    private MessageDigest md ;
 
 
     @Override
@@ -55,11 +57,18 @@ public class ChatScreenController extends Thread implements Initializable {
         flagForThread = true;
         textArea.setEditable(false);
 
+
         user = HomeScreenController.user;
         usersInConnection = HomeScreenController.usersInConnection;
         symmetricKey = HomeScreenController.symmetricKey;
 
         symmetricAlgorithms.setSymmetricKey(symmetricKey);
+
+        try{
+            md = MessageDigest.getInstance(GetConfigPropertyValues.getPropValue("message_digest"));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         start();
 
@@ -107,7 +116,7 @@ public class ChatScreenController extends Thread implements Initializable {
             String encryptedMessage = symmetricAlgorithms.symmetricEncrypt(firstMessage);
 
             //hesiranje poruke
-            MessageDigest md = MessageDigest.getInstance("SHA-1");
+
             byte[] encryptedMessageDigest = md.digest(encryptedMessage.getBytes(StandardCharsets.UTF_8));
 
             //izvlacenje privatnog kljuca
@@ -166,7 +175,7 @@ public class ChatScreenController extends Thread implements Initializable {
 
 
                         //hesiranje enkriptovane prenesene poruke
-                        MessageDigest md = MessageDigest.getInstance("SHA-1");
+
                         byte[] secondDigestInBytes = md.digest(encryptedMessage.getBytes(StandardCharsets.UTF_8));
                         String secondDigest = new String(secondDigestInBytes);
 
@@ -179,8 +188,8 @@ public class ChatScreenController extends Thread implements Initializable {
 
                         String timeStamp = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
                         String messageTmp = usersInConnection.getName() + " [" + timeStamp + "] -> " + decriyptedMessage + "\n\r\n\r";
-                        String curent = textArea.getText();
-                        String finaleMessage = messageTmp + curent;
+                        String currently = textArea.getText();
+                        String finaleMessage = messageTmp + currently;
                         textArea.clear();
                         textArea.setText(finaleMessage);
 

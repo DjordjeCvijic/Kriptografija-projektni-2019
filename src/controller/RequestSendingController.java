@@ -70,6 +70,7 @@ public class RequestSendingController implements Initializable {
             //System.out.println("poslan Kljuc: " + new String(sa.getSymmetricKey().getEncoded()));
             try {
                 HomeScreenController.symmetricKey = sa.getSymmetricKey();
+                System.out.println("u zahtjevui klkuc "+sa.getSymmetricKey());
                 String key = Base64.getEncoder().encodeToString(sa.getSymmetricKey().getEncoded());
                 PublicKey publicKey = CertificateUtil.getPublicKey(HomeScreenController.user.getTrustStorePath(), "truststore", user.getName() + "sertifikat");
 

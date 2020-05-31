@@ -62,16 +62,15 @@ public class CertificateUtil {
 
         return certDetails;
     }
-    public static PublicKey getPublicKey(String jksPath,String jksPassword,String certificateAlias){
-        PublicKey publicKey=null;
 
-
+    public static PublicKey getPublicKey(String jksPath, String jksPassword, String certificateAlias) {
+        PublicKey publicKey = null;
         try {
             KeyStore keyStore = KeyStore.getInstance("JKS");
             keyStore.load(new FileInputStream(jksPath), jksPassword.toCharArray());
-            Certificate cer=keyStore.getCertificate(certificateAlias);
-            publicKey= cer.getPublicKey();
-        }catch (Exception e){
+            Certificate cer = keyStore.getCertificate(certificateAlias);
+            publicKey = cer.getPublicKey();
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return publicKey;

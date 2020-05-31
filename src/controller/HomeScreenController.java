@@ -3,6 +3,7 @@ package controller;
 import certificateServices.CertificateDetails;
 import certificateServices.CertificateUtil;
 import certificateServices.RSA;
+import get_properties.GetConfigPropertyValues;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -81,7 +82,9 @@ public class HomeScreenController extends Thread implements Initializable {
                 e.printStackTrace();
             }
             byte[] decodedKey = Base64.getDecoder().decode(keyInString);
-            symmetricKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "DES");
+            String symmetricAlgorithm= GetConfigPropertyValues.getPropValue("symmetric_algorithm");
+            symmetricKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, symmetricAlgorithm);
+            System.out.println("kljuc u home "+symmetricKey);
             //System.out.println(" dobijen Kljuc: " + new String(symmetricKey.getEncoded()));
         }
 

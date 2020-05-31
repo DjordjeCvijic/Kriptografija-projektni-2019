@@ -50,25 +50,24 @@ public class LoginController {
             loginError("Invalid username or password");
 
         else {
-            File userAccountsFile = new File("src" + File.separator + "resources" + File.separator + "user_accounts"+ File.separator +userName);
+            File userAccountsFile = new File("src" + File.separator + "resources" + File.separator + "user_accounts" + File.separator + userName);
 
-            File account = new File(userAccountsFile.getPath() +File.separator+userName);
-            //System.out.println(account.toString());
+            File account = new File(userAccountsFile.getPath() + File.separator + userName);
+
             if (account.exists()) {
                 try {
 
 
                     if (GenerateAndCheckPassword.checkPassword(userName, password)) {//provjera sifre
-                        if(checkCertificate(userName))
-                        showHomeScreen();
-                        else{
+                        if (checkCertificate(userName))
+                            showHomeScreen();
+                        else {
 
                             loginError("Invalid Certificate");
                         }
 
                     } else
                         loginError("Invalid username or password");
-
 
 
                 } catch (Exception e) {
@@ -82,8 +81,8 @@ public class LoginController {
     }
 
     private boolean checkCertificate(String userName) {
-        CertificateDetails certDetails = CertificateUtil.getCertificateDetails("src" + File.separator + "resources" + File.separator + "user_accounts"+
-                File.separator+userName+File.separator+userName+"-store.jks", userName+"store");
+        CertificateDetails certDetails = CertificateUtil.getCertificateDetails("src" + File.separator + "resources" + File.separator + "user_accounts" +
+                File.separator + userName + File.separator + userName + "-store.jks", userName + "store");
 
 
         return certDetails.checkCertificate();
